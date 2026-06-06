@@ -33,7 +33,7 @@ export default function HeroSection() {
             {popularModules.map((mod) => (
               <a
                 key={mod}
-                href={`/tutors?module=${mod}`}
+                href={`/dashboard?module=${mod}`}
                 className="rounded-lg border border-white/15 bg-white/10 px-2.5 py-1 font-mono text-xs text-white backdrop-blur-sm transition-colors hover:bg-white/20"
               >
                 {mod}
