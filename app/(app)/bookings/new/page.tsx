@@ -23,7 +23,7 @@ export default async function NewBookingPage({ searchParams }: { searchParams: S
       <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
         <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center text-gray-500">
           Pick a tutor and module from{" "}
-          <Link href="/tutors" className="font-semibold text-indigo-600">
+          <Link href="/dashboard" className="font-semibold text-indigo-600">
             search
           </Link>{" "}
           to book a session.

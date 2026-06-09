@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const footerLinks = {
   Platform: [
-    { label: "Find a Tutor", href: "/tutors" },
+    { label: "Find a Tutor", href: "/dashboard" },
     { label: "Become a Tutor", href: "/auth/signup?role=tutor" },
     { label: "SOS Bidding", href: "#features" },
     { label: "Group Sessions", href: "#features" },

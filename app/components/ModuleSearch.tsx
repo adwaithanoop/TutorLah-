@@ -170,7 +170,7 @@ function Link({
   children: React.ReactNode;
 }) {
   return (
-    <a href={`/tutors?module=${encodeURIComponent(query)}`} className={className}>
+    <a href={`/dashboard?module=${encodeURIComponent(query)}`} className={className}>
       {children}
     </a>
   );

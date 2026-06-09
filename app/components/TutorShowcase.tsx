@@ -127,7 +127,7 @@ export default function TutorShowcase() {
             </p>
           </div>
           <a
-            href="/tutors"
+            href="/dashboard"
             className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-indigo-600 transition-colors hover:text-indigo-700"
           >
             Browse all tutors

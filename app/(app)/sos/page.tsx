@@ -13,6 +13,11 @@ export default async function SosPage() {
   } = await supabase.auth.getUser();
 
   const { myRequests, openForMe } = await loadSosDashboard(supabase, user!.id);
+  const { data: subjectRows } = await supabase
+    .from("subjects")
+    .select("module_code, title")
+    .order("module_code");
+  const modules = (subjectRows ?? []).map((s) => ({ code: s.module_code, title: s.title }));
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
@@ -24,7 +29,7 @@ export default async function SosPage() {
 
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-4">
-          <PostSosForm />
+          <PostSosForm modules={modules} />
           <h2 className="text-lg font-bold text-gray-900">Your requests</h2>
           {myRequests.length === 0 ? (
             <p className="text-sm text-gray-500">No SOS requests yet.</p>

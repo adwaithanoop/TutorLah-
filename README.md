@@ -5,8 +5,10 @@ session, and pay safely through escrow.
 
 ## What it does
 
+- **Dual-mode dashboard.** One account, two modes. Switch between student and tutor from
+  the dashboard: students search and book, tutors manage requests and availability.
 - **Verified tutors.** Tutors upload their transcript to get a verified badge for a
-  module. Students search by module code.
+  module. Students search by module code from the dashboard.
 - **Escrow booking.** Payment is held until the session is over and the tutor submits a
   report, so students aren't left out of pocket.
 - **SOS requests.** Post an urgent request and active tutors bid on it in real time. You
@@ -52,7 +54,8 @@ npm run dev                 # http://localhost:3000
 ```
 
 Sign in at `/auth/login` with any `@u.nus.edu` email. Locally the login code shows up in
-Mailpit at http://127.0.0.1:54324. Try a search like `/tutors?module=CS2040S`.
+Mailpit at http://127.0.0.1:54324. After signing in you land on `/dashboard`; try a search
+like `/dashboard?module=CS2040S` and use the mode switch to flip between student and tutor.
 
 Other scripts: `npm run build`, `npm run lint`, `npm test`, and `npm run sync:modules`
 (pull the full NUSMods catalog).
@@ -74,5 +77,5 @@ tested; the frontend just renders and collects input.
 
 ## Team
 
-- **Adwaith Anoop** (Computer Science): systems and Next.js
-- **Daniel Wong** (Information Security): backend and escrow security
+- **Adwaith Anoop**
+- **Daniel Wong**

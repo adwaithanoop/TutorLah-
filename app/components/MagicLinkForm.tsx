@@ -59,7 +59,7 @@ export default function MagicLinkForm({
       setStatus("error");
       return;
     }
-    router.push(next ?? "/tutors");
+    router.push(next ?? "/dashboard");
     router.refresh();
   }
 

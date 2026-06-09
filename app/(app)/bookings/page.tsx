@@ -1,24 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import BookingActions from "@/app/components/booking/BookingActions";
-
-const STATE_STYLES: Record<string, string> = {
-  pending_payment: "bg-amber-50 text-amber-700",
-  held: "bg-indigo-50 text-indigo-700",
-  completed: "bg-sky-50 text-sky-700",
-  released: "bg-emerald-50 text-emerald-700",
-  cancelled: "bg-gray-100 text-gray-500",
-  refunded: "bg-rose-50 text-rose-700",
-};
-
-const STATE_LABEL: Record<string, string> = {
-  pending_payment: "Awaiting payment",
-  held: "In escrow",
-  completed: "Completed",
-  released: "Paid out",
-  cancelled: "Cancelled",
-  refunded: "Refunded",
-};
+import { ESCROW_STATE_LABELS, ESCROW_STATE_STYLES } from "@/app/components/booking/escrowState";
 
 interface BookingView {
   id: string;
@@ -68,8 +51,8 @@ export default async function BookingsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-sm font-semibold text-indigo-700">{b.module_code}</span>
-                      <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${STATE_STYLES[b.escrow_state]}`}>
-                        {STATE_LABEL[b.escrow_state]}
+                      <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${ESCROW_STATE_STYLES[b.escrow_state]}`}>
+                        {ESCROW_STATE_STYLES[b.escrow_state]}
                       </span>
                       <span className="text-xs text-gray-400">
                         {role === "tutor" ? "Teaching" : "Learning from"} {counterparty}
