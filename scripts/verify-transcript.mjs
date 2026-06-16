@@ -39,7 +39,11 @@ if (!tutorId) {
 
 const { data, error } = await supabase
   .from("tutor_modules")
-  .update({ is_verified: verify })
+  .update({
+    is_verified: verify,
+    verification_status: verify ? "verified" : "rejected",
+    reviewed_at: new Date().toISOString(),
+  })
   .eq("tutor_id", tutorId)
   .eq("module_code", moduleCode)
   .select();

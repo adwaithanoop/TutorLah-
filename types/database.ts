@@ -34,6 +34,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admins: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admins_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admins_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       availability: {
         Row: {
           created_at: string
@@ -557,8 +590,12 @@ export type Database = {
           id: string
           is_verified: boolean
           module_code: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           transcript_path: string | null
           tutor_id: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
         }
         Insert: {
           completed_at: string
@@ -567,8 +604,12 @@ export type Database = {
           id?: string
           is_verified?: boolean
           module_code: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           transcript_path?: string | null
           tutor_id: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Update: {
           completed_at?: string
@@ -577,8 +618,12 @@ export type Database = {
           id?: string
           is_verified?: boolean
           module_code?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           transcript_path?: string | null
           tutor_id?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Relationships: [
           {
@@ -587,6 +632,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "subjects"
             referencedColumns: ["module_code"]
+          },
+          {
+            foreignKeyName: "tutor_modules_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "tutor_modules_tutor_id_fkey"
@@ -607,7 +659,12 @@ export type Database = {
         Returns: string
       }
       enrol_in_group: { Args: { p_group: string }; Returns: number }
+      is_admin: { Args: never; Returns: boolean }
       is_nus: { Args: never; Returns: boolean }
+      review_tutor_module: {
+        Args: { p_approve: boolean; p_module: string; p_note?: string }
+        Returns: undefined
+      }
       shares_booking: { Args: { a: string; b: string }; Returns: boolean }
     }
     Enums: {
@@ -623,6 +680,7 @@ export type Database = {
       price_type: "fixed" | "negotiable"
       sos_status: "open" | "matched" | "cancelled"
       subject_level: "o_level" | "a_level" | "nus" | "ntu"
+      verification_status: "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -766,6 +824,7 @@ export const Constants = {
       price_type: ["fixed", "negotiable"],
       sos_status: ["open", "matched", "cancelled"],
       subject_level: ["o_level", "a_level", "nus", "ntu"],
+      verification_status: ["pending", "verified", "rejected"],
     },
   },
 } as const
