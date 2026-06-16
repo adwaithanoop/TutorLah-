@@ -1,4 +1,5 @@
 import TranscriptUpload from "./TranscriptUpload";
+import { formatTerm } from "@/lib/modules/terms";
 
 export interface ProfileModule {
   id: string;
@@ -48,7 +49,7 @@ export default function ModuleList({
                 </span>
               </div>
               <p className="text-xs text-gray-500">
-                {m.subjects?.title} · completed {m.completed_at}
+                {m.subjects?.title} · completed {formatTerm(m.completed_at)}
                 {m.transcript_path && " · transcript attached"}
               </p>
               {m.verification_status === "rejected" && m.review_note && (

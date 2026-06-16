@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import ReviewActions from "@/app/components/admin/ReviewActions";
+import { formatTerm } from "@/lib/modules/terms";
 
 interface PendingRow {
   id: string;
@@ -64,7 +65,7 @@ export default async function VerificationsPage() {
                     {row.profiles?.full_name ?? "Unknown tutor"}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {row.subjects?.title} · completed {row.completed_at}
+                    {row.subjects?.title} · completed {formatTerm(row.completed_at)}
                     {row.profiles?.faculty ? ` · ${row.profiles.faculty}` : ""}
                   </p>
                   {row.transcriptUrl ? (

@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GRADES } from "@/lib/validation/profile";
+import { recentTerms } from "@/lib/modules/terms";
 
 export default function AddModuleForm() {
   const router = useRouter();
+  const terms = useMemo(() => recentTerms(), []);
   const [moduleCode, setModuleCode] = useState("");
   const [grade, setGrade] = useState<(typeof GRADES)[number]>("A+");
   const [completedAt, setCompletedAt] = useState("");
@@ -59,13 +61,21 @@ export default function AddModuleForm() {
       </label>
       <label>
         <span className="mb-1.5 block text-sm font-medium text-gray-700">Completed</span>
-        <input
-          type="date"
+        <select
           value={completedAt}
           onChange={(e) => setCompletedAt(e.target.value)}
           required
           className="rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:outline-none"
-        />
+        >
+          <option value="" disabled>
+            Select term
+          </option>
+          {terms.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
       </label>
       <button
         type="submit"
