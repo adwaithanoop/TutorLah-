@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ESCROW_STATE_LABELS, ESCROW_STATE_STYLES } from "@/app/components/booking/escrowState";
+import AddModuleForm from "@/app/components/profile/AddModuleForm";
+import ModuleList, { type ProfileModule } from "@/app/components/profile/ModuleList";
 
 interface UpcomingBooking {
   id: string;
@@ -17,11 +19,6 @@ const QUICK_ACTIONS = [
     href: "/sos",
     title: "SOS feed",
     description: "See live requests for your verified modules and submit a bid.",
-  },
-  {
-    href: "/profile",
-    title: "Your modules",
-    description: "Upload transcripts and manage the modules you're verified to tutor.",
   },
   {
     href: "/bookings",
@@ -52,6 +49,16 @@ export default async function TutorDashboard() {
     .select("id", { count: "exact", head: true })
     .eq("tutor_id", user!.id)
     .eq("is_verified", true);
+
+  const { data: moduleRows } = await supabase
+    .from("tutor_modules")
+    .select(
+      "id, module_code, grade, completed_at, is_verified, verification_status, review_note, transcript_path, subjects(title)",
+    )
+    .eq("tutor_id", user!.id)
+    .order("completed_at", { ascending: false });
+
+  const modules = (moduleRows as ProfileModule[] | null) ?? [];
 
   const { data: upcomingData } = await supabase
     .from("bookings")
@@ -149,6 +156,14 @@ export default async function TutorDashboard() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section className="mb-10">
+        <h2 className="mb-4 text-lg font-bold text-indigo-950">Modules you tutor</h2>
+        <div className="space-y-4">
+          <ModuleList modules={modules} userId={user!.id} />
+          <AddModuleForm />
+        </div>
       </section>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
