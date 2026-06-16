@@ -8,6 +8,7 @@ import {
   MessagesSquare,
   CalendarDays,
   IdCard,
+  FileText,
   ShieldCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -17,6 +18,7 @@ import { getMode } from "./mode";
 const SHARED_NAV = [
   { href: "/sos", label: "SOS", icon: Zap },
   { href: "/groups", label: "Groups", icon: Users },
+  { href: "/cheatsheets", label: "Cheatsheets", icon: FileText },
   { href: "/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/messages", label: "Messages", icon: MessagesSquare },
   { href: "/schedule", label: "Schedule", icon: CalendarDays },
