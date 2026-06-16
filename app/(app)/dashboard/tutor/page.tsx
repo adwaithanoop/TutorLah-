@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ESCROW_STATE_LABELS, ESCROW_STATE_STYLES } from "@/app/components/booking/escrowState";
-import AddModuleForm from "@/app/components/profile/AddModuleForm";
-import ModuleList, { type ProfileModule } from "@/app/components/profile/ModuleList";
+import AddModuleForm from "@/app/components/modules/AddModuleForm";
+import ModuleList, { type TutorModule } from "@/app/components/modules/ModuleList";
 
 interface UpcomingBooking {
   id: string;
@@ -44,12 +44,6 @@ export default async function TutorDashboard() {
     .eq("id", user!.id)
     .maybeSingle();
 
-  const { count: verifiedModules } = await supabase
-    .from("tutor_modules")
-    .select("id", { count: "exact", head: true })
-    .eq("tutor_id", user!.id)
-    .eq("is_verified", true);
-
   const { data: moduleRows } = await supabase
     .from("tutor_modules")
     .select(
@@ -58,7 +52,8 @@ export default async function TutorDashboard() {
     .eq("tutor_id", user!.id)
     .order("completed_at", { ascending: false });
 
-  const modules = (moduleRows as ProfileModule[] | null) ?? [];
+  const modules = (moduleRows as TutorModule[] | null) ?? [];
+  const verifiedModules = modules.filter((m) => m.is_verified).length;
 
   const { data: upcomingData } = await supabase
     .from("bookings")
@@ -101,7 +96,7 @@ export default async function TutorDashboard() {
       <section className="mb-10 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
           <p className="text-sm font-medium text-indigo-900/60">Verified modules</p>
-          <p className="mt-1 text-3xl font-bold text-indigo-950">{verifiedModules ?? 0}</p>
+          <p className="mt-1 text-3xl font-bold text-indigo-950">{verifiedModules}</p>
         </div>
         <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
           <p className="text-sm font-medium text-indigo-900/60">Average rating</p>
