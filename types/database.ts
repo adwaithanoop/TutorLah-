@@ -166,6 +166,51 @@ export type Database = {
           },
         ]
       }
+      cheatsheets: {
+        Row: {
+          created_at: string
+          file_path: string
+          id: string
+          module_code: string
+          test_label: string
+          title: string
+          uploader_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          id?: string
+          module_code: string
+          test_label: string
+          title: string
+          uploader_id: string
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          id?: string
+          module_code?: string
+          test_label?: string
+          title?: string
+          uploader_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cheatsheets_module_code_fkey"
+            columns: ["module_code"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["module_code"]
+          },
+          {
+            foreignKeyName: "cheatsheets_uploader_id_fkey"
+            columns: ["uploader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_enrolments: {
         Row: {
           created_at: string
