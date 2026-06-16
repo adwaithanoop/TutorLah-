@@ -26,7 +26,9 @@ export default async function ProfilePage() {
 
   const { data: modules } = await supabase
     .from("tutor_modules")
-    .select("id, module_code, grade, completed_at, is_verified, transcript_path, subjects(title)")
+    .select(
+      "id, module_code, grade, completed_at, is_verified, verification_status, review_note, transcript_path, subjects(title)",
+    )
     .eq("tutor_id", user!.id)
     .order("completed_at", { ascending: false });
 

@@ -7,6 +7,7 @@ import {
   MessagesSquare,
   CalendarDays,
   IdCard,
+  ShieldCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import ModeMenu from "@/app/components/ModeMenu";
@@ -35,6 +36,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .eq("id", user!.id)
     .maybeSingle();
 
+  const { data: adminRow } = await supabase
+    .from("admins")
+    .select("id")
+    .eq("id", user!.id)
+    .maybeSingle();
+  const isAdmin = !!adminRow;
+
   const name = profile?.full_name?.trim() || user?.email?.split("@")[0] || "You";
   const avatarColor = profile?.avatar_color ?? "bg-indigo-500";
   const home = mode === "tutor" ? "/dashboard/tutor" : "/dashboard";
@@ -57,6 +65,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 <span className="hidden lg:inline">{label}</span>
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                href="/admin/verifications"
+                className="flex items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-medium text-indigo-900/70 transition-colors hover:bg-indigo-50 hover:text-indigo-700 sm:px-3"
+              >
+                <ShieldCheck className="h-4 w-4" strokeWidth={2} />
+                <span className="hidden lg:inline">Admin</span>
+              </Link>
+            )}
           </nav>
           <ModeMenu name={name} mode={mode} avatarColor={avatarColor} />
         </div>

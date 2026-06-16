@@ -39,7 +39,7 @@ interface TutorModuleRow {
 }
 
 const SELECT =
-  "grade, completed_at, is_verified, profiles(id, full_name, year, faculty, avatar_color, rate_per_hour, is_active, avg_rating, rating_count, sessions_completed, sessions_booked)";
+  "grade, completed_at, is_verified, profiles!tutor_id(id, full_name, year, faculty, avatar_color, rate_per_hour, is_active, avg_rating, rating_count, sessions_completed, sessions_booked)";
 
 function initials(name: string): string {
   return name
