@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { searchTutors } from "@/lib/tutors/search";
 import { moduleCodeSchema } from "@/lib/validation/search";
 import TutorResultCard from "@/app/components/TutorResultCard";
+import DashboardModuleSearch from "@/app/components/DashboardModuleSearch";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -51,6 +51,12 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const tutors = parsed.success ? await searchTutors(supabase, parsed.data) : [];
   const firstName = profile?.full_name?.trim().split(/\s+/)[0] || "there";
 
+  const { data: subjectRows } = await supabase
+    .from("subjects")
+    .select("module_code, title")
+    .order("module_code");
+  const modules = (subjectRows ?? []).map((s) => ({ code: s.module_code, title: s.title }));
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <header className="mb-8">
@@ -66,23 +72,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
         <p className="mt-1 text-indigo-100">
           Search any NUS module code to see verified tutors ranked by Reliability Score.
         </p>
-        <form method="get" action="/dashboard" className="mt-5 flex max-w-md gap-2">
-          <input
-            name="module"
-            type="text"
-            defaultValue={rawModule}
-            placeholder="e.g. CS2040S"
-            autoComplete="off"
-            className="flex-1 rounded-lg border border-transparent bg-white/95 px-3.5 py-2.5 text-sm text-indigo-950 placeholder-indigo-900/40 focus:outline-none focus:ring-2 focus:ring-white/60"
-          />
-          <button
-            type="submit"
-            className="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-50"
-          >
-            <Search className="h-4 w-4" strokeWidth={2.5} />
-            Search
-          </button>
-        </form>
+        <DashboardModuleSearch modules={modules} initialModule={rawModule} />
         {parsed.success && (
           <p className="mt-3 text-sm text-indigo-100">
             Showing tutors for <span className="font-mono font-semibold text-white">{parsed.data}</span>

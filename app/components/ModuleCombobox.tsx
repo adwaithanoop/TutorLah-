@@ -15,14 +15,16 @@ export default function ModuleCombobox({
   onChange,
   placeholder = "Search module code or title",
   inputClassName = INPUT_CLASS,
+  defaultValue = "",
 }: {
   modules: ModuleOption[];
   onChange: (code: string) => void;
   placeholder?: string;
   inputClassName?: string;
+  defaultValue?: string;
 }) {
-  const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState("");
+  const [query, setQuery] = useState(defaultValue);
+  const [selected, setSelected] = useState(defaultValue);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
