@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ESCROW_STATE_LABELS, ESCROW_STATE_STYLES } from "@/app/components/booking/escrowState";
+import AddModuleForm from "@/app/components/modules/AddModuleForm";
+import ModuleList, { type TutorModule } from "@/app/components/modules/ModuleList";
 
 interface UpcomingBooking {
   id: string;
@@ -17,11 +19,6 @@ const QUICK_ACTIONS = [
     href: "/sos",
     title: "SOS feed",
     description: "See live requests for your verified modules and submit a bid.",
-  },
-  {
-    href: "/profile",
-    title: "Your modules",
-    description: "Upload transcripts and manage the modules you're verified to tutor.",
   },
   {
     href: "/bookings",
@@ -47,11 +44,16 @@ export default async function TutorDashboard() {
     .eq("id", user!.id)
     .maybeSingle();
 
-  const { count: verifiedModules } = await supabase
+  const { data: moduleRows } = await supabase
     .from("tutor_modules")
-    .select("id", { count: "exact", head: true })
+    .select(
+      "id, module_code, grade, completed_at, is_verified, verification_status, review_note, transcript_path, subjects(title)",
+    )
     .eq("tutor_id", user!.id)
-    .eq("is_verified", true);
+    .order("completed_at", { ascending: false });
+
+  const modules = (moduleRows as TutorModule[] | null) ?? [];
+  const verifiedModules = modules.filter((m) => m.is_verified).length;
 
   const { data: upcomingData } = await supabase
     .from("bookings")
@@ -94,7 +96,7 @@ export default async function TutorDashboard() {
       <section className="mb-10 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
           <p className="text-sm font-medium text-indigo-900/60">Verified modules</p>
-          <p className="mt-1 text-3xl font-bold text-indigo-950">{verifiedModules ?? 0}</p>
+          <p className="mt-1 text-3xl font-bold text-indigo-950">{verifiedModules}</p>
         </div>
         <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
           <p className="text-sm font-medium text-indigo-900/60">Average rating</p>
@@ -149,6 +151,14 @@ export default async function TutorDashboard() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section className="mb-10">
+        <h2 className="mb-4 text-lg font-bold text-indigo-950">Modules you tutor</h2>
+        <div className="space-y-4">
+          <ModuleList modules={modules} userId={user!.id} />
+          <AddModuleForm />
+        </div>
       </section>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -1,6 +1,7 @@
 import TranscriptUpload from "./TranscriptUpload";
+import { formatTerm } from "@/lib/modules/terms";
 
-export interface ProfileModule {
+export interface TutorModule {
   id: string;
   module_code: string;
   grade: string;
@@ -12,7 +13,7 @@ export interface ProfileModule {
   subjects: { title: string } | null;
 }
 
-const STATUS_BADGE: Record<ProfileModule["verification_status"], { label: string; className: string }> = {
+const STATUS_BADGE: Record<TutorModule["verification_status"], { label: string; className: string }> = {
   verified: { label: "Verified", className: "bg-emerald-50 text-emerald-700" },
   rejected: { label: "Rejected", className: "bg-rose-50 text-rose-700" },
   pending: { label: "Pending", className: "bg-amber-50 text-amber-700" },
@@ -22,7 +23,7 @@ export default function ModuleList({
   modules,
   userId,
 }: {
-  modules: ProfileModule[];
+  modules: TutorModule[];
   userId: string;
 }) {
   if (modules.length === 0) {
@@ -48,7 +49,7 @@ export default function ModuleList({
                 </span>
               </div>
               <p className="text-xs text-gray-500">
-                {m.subjects?.title} · completed {m.completed_at}
+                {m.subjects?.title} · completed {formatTerm(m.completed_at)}
                 {m.transcript_path && " · transcript attached"}
               </p>
               {m.verification_status === "rejected" && m.review_note && (

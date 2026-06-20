@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   Search,
+  LayoutDashboard,
   Zap,
   Users,
   CalendarCheck,
@@ -13,8 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 import ModeMenu from "@/app/components/ModeMenu";
 import { getMode } from "./mode";
 
-const NAV = [
-  { href: "/dashboard", label: "Find tutors", icon: Search },
+const SHARED_NAV = [
   { href: "/sos", label: "SOS", icon: Zap },
   { href: "/groups", label: "Groups", icon: Users },
   { href: "/bookings", label: "Bookings", icon: CalendarCheck },
@@ -47,6 +47,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const avatarColor = profile?.avatar_color ?? "bg-indigo-500";
   const home = mode === "tutor" ? "/dashboard/tutor" : "/dashboard";
 
+  const homeNav =
+    mode === "tutor"
+      ? { href: home, label: "Dashboard", icon: LayoutDashboard }
+      : { href: home, label: "Find tutors", icon: Search };
+  const navItems = [homeNav, ...SHARED_NAV];
+
   return (
     <div className="min-h-screen bg-cream">
       <header className="sticky top-0 z-40 border-b border-indigo-100/70 bg-cream/85 backdrop-blur-md">
@@ -55,7 +61,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             TutorLah
           </Link>
           <nav className="flex items-center gap-0.5 sm:gap-1">
-            {NAV.map(({ href, label, icon: Icon }) => (
+            {navItems.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
                 href={href}
