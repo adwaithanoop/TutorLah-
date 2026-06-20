@@ -9,6 +9,7 @@ export interface TutorModule {
   is_verified: boolean;
   verification_status: "pending" | "verified" | "rejected";
   review_note: string | null;
+  reviewed_at: string | null;
   transcript_path: string | null;
   subjects: { title: string } | null;
 }
@@ -29,7 +30,7 @@ export default function ModuleList({
   if (modules.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-sm text-gray-500">
-        No modules yet. Add a module you scored well in to start tutoring it.
+        No modules awaiting verification. Add one below to start tutoring it.
       </p>
     );
   }
@@ -49,15 +50,19 @@ export default function ModuleList({
                 </span>
               </div>
               <p className="text-xs text-gray-500">
-                {m.subjects?.title} · completed {formatTerm(m.completed_at)}
-                {m.transcript_path && " · transcript attached"}
+                {m.subjects?.title} {formatTerm(m.completed_at)}
               </p>
               {m.verification_status === "rejected" && m.review_note && (
                 <p className="mt-1 text-xs text-rose-600">Reviewer note: {m.review_note}</p>
               )}
             </div>
             {m.verification_status !== "verified" && (
-              <TranscriptUpload moduleId={m.id} moduleCode={m.module_code} userId={userId} />
+              <TranscriptUpload
+                moduleId={m.id}
+                moduleCode={m.module_code}
+                userId={userId}
+                hasTranscript={Boolean(m.transcript_path)}
+              />
             )}
           </li>
         );
