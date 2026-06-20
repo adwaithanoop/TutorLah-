@@ -21,6 +21,9 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
+  if (!parsed.data.transcript_path.startsWith(`${user.id}/`)) {
+    return NextResponse.json({ error: "Invalid transcript path" }, { status: 400 });
+  }
 
   const known = await ensureModuleInCatalog(parsed.data.module_code);
   if (!known) {
@@ -34,6 +37,7 @@ export async function POST(request: NextRequest) {
       module_code: parsed.data.module_code,
       grade: parsed.data.grade,
       completed_at: parsed.data.completed_at,
+      transcript_path: parsed.data.transcript_path,
     })
     .select()
     .single();
