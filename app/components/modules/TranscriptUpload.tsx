@@ -8,10 +8,12 @@ export default function TranscriptUpload({
   moduleId,
   moduleCode,
   userId,
+  hasTranscript,
 }: {
   moduleId: string;
   moduleCode: string;
   userId: string;
+  hasTranscript: boolean;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
@@ -48,13 +50,20 @@ export default function TranscriptUpload({
     router.refresh();
   }
 
+  const label = status === "uploading" ? "Uploading…" : hasTranscript ? "Replace transcript" : "Upload transcript";
+
   return (
     <div className="text-xs">
       <label className="cursor-pointer font-medium text-indigo-600 hover:text-indigo-700">
-        {status === "uploading" ? "Uploading…" : "Upload transcript"}
+        {label}
         <input type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFile} className="hidden" />
       </label>
-      <p className="mt-0.5 text-gray-400">Verification is manual; uploading does not verify you.</p>
+      <p className="mt-0.5 text-gray-400">
+        {hasTranscript
+          ? "Transcript uploaded, pending review by admin."
+          : "Verification is manual; uploading does not verify you."}
+      </p>
+      {status === "done" && <p className="mt-0.5 text-emerald-600">New transcript saved.</p>}
       {status === "error" && <p className="mt-0.5 text-red-600">{error}</p>}
     </div>
   );
