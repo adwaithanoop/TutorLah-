@@ -25,11 +25,11 @@ export default function TranscriptUpload({
 
     setStatus("uploading");
     setError("");
-    const path = `${userId}/${moduleCode}-${file.name}`;
+    const path = `${userId}/${moduleCode}-${Date.now()}-${file.name}`;
     const supabase = createClient();
     const { error: uploadError } = await supabase.storage
       .from("transcripts")
-      .upload(path, file, { upsert: true });
+      .upload(path, file);
     if (uploadError) {
       setError(uploadError.message);
       setStatus("error");

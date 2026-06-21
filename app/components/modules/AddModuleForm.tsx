@@ -27,11 +27,11 @@ export default function AddModuleForm({ userId }: { userId: string }) {
     setError("");
 
     const code = moduleCode.trim().toUpperCase();
-    const path = `${userId}/${code}-${file.name}`;
+    const path = `${userId}/${code}-${Date.now()}-${file.name}`;
     const supabase = createClient();
     const { error: uploadError } = await supabase.storage
       .from("transcripts")
-      .upload(path, file, { upsert: true });
+      .upload(path, file);
     if (uploadError) {
       setError(uploadError.message);
       setSaving(false);
