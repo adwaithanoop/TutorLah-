@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { searchTutors } from "@/lib/tutors/search";
 import { moduleCodeSchema } from "@/lib/validation/search";
@@ -9,29 +8,6 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 const first = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
-
-const QUICK_ACTIONS = [
-  {
-    href: "/sos",
-    title: "Post an SOS",
-    description: "Stuck right now? Call for available tutors and get live bids.",
-  },
-  {
-    href: "/groups",
-    title: "Join a group",
-    description: "Split the cost: price drops per seat as more students join.",
-  },
-  {
-    href: "/schedule",
-    title: "Set calendar",
-    description: "Mark your free slots so booking a session is one tap.",
-  },
-  {
-    href: "/passport",
-    title: "Academic Passport",
-    description: "Review past session reports and the gaps tutors flagged.",
-  },
-];
 
 export default async function StudentDashboard({ searchParams }: { searchParams: SearchParams }) {
   const rawModule = first((await searchParams).module) ?? "";
@@ -94,31 +70,16 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
           </div>
         )
       ) : (
-        <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {QUICK_ACTIONS.map(({ href, title, description }) => (
-              <Link
-                key={href}
-                href={href}
-                className="flex flex-col rounded-xl border border-indigo-100 bg-white p-6 shadow-soft"
-              >
-                <h3 className="text-base font-bold text-indigo-950">{title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-indigo-900/60">{description}</p>
-              </Link>
-            ))}
+        <section className="mt-10 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
+            <p className="text-sm font-medium text-indigo-900/60">Sessions booked</p>
+            <p className="mt-1 text-3xl font-bold text-indigo-950">{profile?.sessions_booked ?? 0}</p>
           </div>
-
-          <section className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
-              <p className="text-sm font-medium text-indigo-900/60">Sessions booked</p>
-              <p className="mt-1 text-3xl font-bold text-indigo-950">{profile?.sessions_booked ?? 0}</p>
-            </div>
-            <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
-              <p className="text-sm font-medium text-indigo-900/60">Sessions completed</p>
-              <p className="mt-1 text-3xl font-bold text-indigo-950">{profile?.sessions_completed ?? 0}</p>
-            </div>
-          </section>
-        </>
+          <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
+            <p className="text-sm font-medium text-indigo-900/60">Sessions completed</p>
+            <p className="mt-1 text-3xl font-bold text-indigo-950">{profile?.sessions_completed ?? 0}</p>
+          </div>
+        </section>
       )}
     </main>
   );

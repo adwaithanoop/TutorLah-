@@ -29,6 +29,7 @@ export const addModuleSchema = z.object({
     .refine((s) => !Number.isNaN(Date.parse(s)) && new Date(s) <= new Date(), {
       message: "Completion date must be valid and not in the future",
     }),
+  transcript_path: z.string().min(1, "Attach your transcript"),
 });
 
 export const setTranscriptSchema = z.object({

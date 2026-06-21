@@ -41,9 +41,33 @@ export default async function VerificationsPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="mb-1 text-3xl font-bold text-indigo-950">Transcript verification</h1>
-      <p className="mb-8 text-gray-500">
+      <p className="mb-6 text-gray-500">
         Review each transcript and confirm the name, module, and grade match before approving.
       </p>
+
+      <div className="mb-8 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5 text-sm">
+        <p className="font-semibold text-indigo-950">Suggested reasons</p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Allow re-upload</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-5 text-gray-600">
+              <li>File corrupted or will not open</li>
+              <li>Image too blurry to read</li>
+              <li>Module not included in the transcript (wrong sem maybe)</li>
+              <li>Grade mismatch but still within our range (ask the tutor to resubmit with the correct grade)</li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Reject permanently</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-5 text-gray-600">
+              <li>Grade of applied module is &quot;[TBC]&quot; or lower</li>
+              <li>Grade of any module is &quot;[TBC]&quot; or lower</li>
+              <li>Claim cannot be supported by the transcript</li>
+              <li>Any other outstanding reasons</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
       {withUrls.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-sm text-gray-500">
@@ -65,8 +89,8 @@ export default async function VerificationsPage() {
                     {row.profiles?.full_name ?? "Unknown tutor"}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {row.subjects?.title} · completed {formatTerm(row.completed_at)}
-                    {row.profiles?.faculty ? ` · ${row.profiles.faculty}` : ""}
+                    {row.subjects?.title} | {formatTerm(row.completed_at)}
+                    {row.profiles?.faculty ? ` | ${row.profiles.faculty}` : ""}
                   </p>
                   {row.transcriptUrl ? (
                     <a

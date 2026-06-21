@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ESCROW_STATE_LABELS, ESCROW_STATE_STYLES } from "@/app/components/booking/escrowState";
 import AddModuleForm from "@/app/components/modules/AddModuleForm";
 import ModuleList, { type TutorModule } from "@/app/components/modules/ModuleList";
+import VerifiedModuleList from "@/app/components/modules/VerifiedModuleList";
 
 interface UpcomingBooking {
   id: string;
@@ -13,24 +14,6 @@ interface UpcomingBooking {
   escrow_state: string;
   student: { full_name: string } | null;
 }
-
-const QUICK_ACTIONS = [
-  {
-    href: "/sos",
-    title: "SOS feed",
-    description: "See live requests for your verified modules and submit a bid.",
-  },
-  {
-    href: "/bookings",
-    title: "Bookings",
-    description: "Run upcoming sessions and submit reports to release escrow.",
-  },
-  {
-    href: "/schedule",
-    title: "Availability",
-    description: "Keep your free slots current so students can propose times.",
-  },
-];
 
 export default async function TutorDashboard() {
   const supabase = await createClient();
@@ -47,13 +30,14 @@ export default async function TutorDashboard() {
   const { data: moduleRows } = await supabase
     .from("tutor_modules")
     .select(
-      "id, module_code, grade, completed_at, is_verified, verification_status, review_note, transcript_path, subjects(title)",
+      "id, module_code, grade, completed_at, is_verified, verification_status, review_note, reviewed_at, allow_resubmit, transcript_path, subjects(title)",
     )
     .eq("tutor_id", user!.id)
     .order("completed_at", { ascending: false });
 
   const modules = (moduleRows as TutorModule[] | null) ?? [];
-  const verifiedModules = modules.filter((m) => m.is_verified).length;
+  const verifiedModules = modules.filter((m) => m.verification_status === "verified");
+  const reviewModules = modules.filter((m) => m.verification_status !== "verified");
 
   const { data: upcomingData } = await supabase
     .from("bookings")
@@ -96,7 +80,7 @@ export default async function TutorDashboard() {
       <section className="mb-10 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
           <p className="text-sm font-medium text-indigo-900/60">Verified modules</p>
-          <p className="mt-1 text-3xl font-bold text-indigo-950">{verifiedModules}</p>
+          <p className="mt-1 text-3xl font-bold text-indigo-950">{verifiedModules.length}</p>
         </div>
         <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
           <p className="text-sm font-medium text-indigo-900/60">Average rating</p>
@@ -154,25 +138,17 @@ export default async function TutorDashboard() {
       </section>
 
       <section className="mb-10">
-        <h2 className="mb-4 text-lg font-bold text-indigo-950">Modules you tutor</h2>
-        <div className="space-y-4">
-          <ModuleList modules={modules} userId={user!.id} />
-          <AddModuleForm />
-        </div>
+        <h2 className="mb-4 text-xl font-bold tracking-tight text-indigo-950">Your modules</h2>
+        <VerifiedModuleList modules={verifiedModules} />
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {QUICK_ACTIONS.map(({ href, title, description }) => (
-          <Link
-            key={href}
-            href={href}
-            className="flex flex-col rounded-xl border border-indigo-100 bg-white p-6 shadow-soft"
-          >
-            <h3 className="text-base font-bold text-indigo-950">{title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-indigo-900/60">{description}</p>
-          </Link>
-        ))}
-      </div>
+      <section className="mb-10">
+        <h2 className="mb-4 text-lg font-bold text-indigo-950">Modules pending verification</h2>
+        <div className="space-y-4">
+          <ModuleList modules={reviewModules} userId={user!.id} />
+          <AddModuleForm userId={user!.id} />
+        </div>
+      </section>
     </main>
   );
 }
