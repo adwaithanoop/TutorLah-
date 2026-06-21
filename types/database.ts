@@ -584,6 +584,7 @@ export type Database = {
       }
       tutor_modules: {
         Row: {
+          allow_resubmit: boolean
           completed_at: string
           created_at: string
           grade: Database["public"]["Enums"]["module_grade"]
@@ -598,6 +599,7 @@ export type Database = {
           verification_status: Database["public"]["Enums"]["verification_status"]
         }
         Insert: {
+          allow_resubmit?: boolean
           completed_at: string
           created_at?: string
           grade: Database["public"]["Enums"]["module_grade"]
@@ -612,6 +614,7 @@ export type Database = {
           verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Update: {
+          allow_resubmit?: boolean
           completed_at?: string
           created_at?: string
           grade?: Database["public"]["Enums"]["module_grade"]
@@ -662,7 +665,12 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_nus: { Args: never; Returns: boolean }
       review_tutor_module: {
-        Args: { p_approve: boolean; p_module: string; p_note?: string }
+        Args: {
+          p_allow_resubmit?: boolean
+          p_approve: boolean
+          p_module: string
+          p_note?: string
+        }
         Returns: undefined
       }
       shares_booking: { Args: { a: string; b: string }; Returns: boolean }

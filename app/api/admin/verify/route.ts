@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
     p_module: parsed.data.module_id,
     p_approve: parsed.data.approve,
     p_note: parsed.data.note ?? undefined,
+    p_allow_resubmit: parsed.data.allow_resubmit ?? true,
   });
 
   if (error) {

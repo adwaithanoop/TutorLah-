@@ -74,6 +74,17 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Invalid transcript path" }, { status: 400 });
   }
 
+  const { data: existing } = await supabase
+    .from("tutor_modules")
+    .select("verification_status, allow_resubmit")
+    .eq("id", parsed.data.module_id)
+    .eq("tutor_id", user.id)
+    .maybeSingle();
+  if (!existing) return NextResponse.json({ error: "Module not found" }, { status: 404 });
+  if (existing.verification_status === "rejected" && !existing.allow_resubmit) {
+    return NextResponse.json({ error: "This module can no longer be resubmitted" }, { status: 403 });
+  }
+
   const { data, error } = await supabase
     .from("tutor_modules")
     .update({ transcript_path: parsed.data.transcript_path })

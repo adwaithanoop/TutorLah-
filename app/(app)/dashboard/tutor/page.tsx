@@ -30,7 +30,7 @@ export default async function TutorDashboard() {
   const { data: moduleRows } = await supabase
     .from("tutor_modules")
     .select(
-      "id, module_code, grade, completed_at, is_verified, verification_status, review_note, reviewed_at, transcript_path, subjects(title)",
+      "id, module_code, grade, completed_at, is_verified, verification_status, review_note, reviewed_at, allow_resubmit, transcript_path, subjects(title)",
     )
     .eq("tutor_id", user!.id)
     .order("completed_at", { ascending: false });

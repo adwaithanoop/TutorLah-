@@ -10,6 +10,7 @@ export interface TutorModule {
   verification_status: "pending" | "verified" | "rejected";
   review_note: string | null;
   reviewed_at: string | null;
+  allow_resubmit: boolean;
   transcript_path: string | null;
   subjects: { title: string } | null;
 }
@@ -39,6 +40,8 @@ export default function ModuleList({
     <ul className="divide-y divide-gray-100 overflow-hidden rounded-2xl bg-white shadow-soft">
       {modules.map((m) => {
         const badge = STATUS_BADGE[m.verification_status];
+        const blocked = m.verification_status === "rejected" && !m.allow_resubmit;
+        const canResubmit = m.verification_status === "pending" || (m.verification_status === "rejected" && m.allow_resubmit);
         return (
           <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
             <div>
@@ -55,15 +58,18 @@ export default function ModuleList({
               {m.verification_status === "rejected" && m.review_note && (
                 <p className="mt-1 text-xs text-rose-600">Reviewer note: {m.review_note}</p>
               )}
+              {blocked && (
+                <p className="mt-1 text-xs text-rose-600">This module was rejected and cannot be resubmitted.</p>
+              )}
             </div>
-            {m.verification_status !== "verified" && (
+            {canResubmit ? (
               <TranscriptUpload
                 moduleId={m.id}
                 moduleCode={m.module_code}
                 userId={userId}
                 hasTranscript={Boolean(m.transcript_path)}
               />
-            )}
+            ) : null}
           </li>
         );
       })}
