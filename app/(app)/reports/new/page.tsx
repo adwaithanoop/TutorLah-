@@ -41,7 +41,7 @@ export default async function NewReportPage({ searchParams }: { searchParams: Se
       <h1 className="mb-1 text-3xl font-bold text-gray-900">Session report</h1>
       <p className="mb-6 text-gray-500">
         <span className="font-mono font-semibold text-indigo-600">{booking.module_code}</span>
-        {student?.full_name && ` · ${student.full_name}`} and a report is required before releasing payment.
+        {student?.full_name && ` | ${student.full_name}`} and a report is required before releasing payment.
       </p>
       <ReportForm bookingId={booking.id} />
     </main>

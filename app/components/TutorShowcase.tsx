@@ -51,7 +51,7 @@ function TutorCard({ tutor }: { tutor: Tutor }) {
               <BadgeCheck className="h-4 w-4 text-indigo-600" aria-label="Verified tutor" />
             </div>
             <p className="text-sm text-indigo-900/60">
-              {tutor.year} · {tutor.faculty}
+              {tutor.year} | {tutor.faculty}
             </p>
           </div>
         </div>

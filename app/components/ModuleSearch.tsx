@@ -133,7 +133,7 @@ export default function ModuleSearch() {
                             key={m.code}
                             className="text-xs font-mono text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded"
                           >
-                            {m.code} · {m.grade}
+                            {m.code} | {m.grade}
                           </span>
                         ))}
                     </div>
