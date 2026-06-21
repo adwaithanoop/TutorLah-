@@ -8,11 +8,9 @@ export interface CurrentUser {
 }
 
 export async function getCurrentUser(supabase: ServerClient): Promise<CurrentUser | null> {
-  const { data } = await supabase.auth.getClaims();
-  const claims = data?.claims;
-  if (!claims?.sub) return null;
-  return {
-    id: claims.sub,
-    email: typeof claims.email === "string" ? claims.email : null,
-  };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  return { id: user.id, email: user.email ?? null };
 }
