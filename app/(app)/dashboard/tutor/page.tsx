@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
 import { ESCROW_STATE_LABELS, ESCROW_STATE_STYLES } from "@/app/components/booking/escrowState";
 import AddModuleForm from "@/app/components/modules/AddModuleForm";
 import ModuleList, { type TutorModule } from "@/app/components/modules/ModuleList";
@@ -17,38 +18,36 @@ interface UpcomingBooking {
 
 export default async function TutorDashboard() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser(supabase);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, is_active, avg_rating, rating_count, sessions_completed")
-    .eq("id", user!.id)
-    .maybeSingle();
-
-  const { data: moduleRows } = await supabase
-    .from("tutor_modules")
-    .select(
-      "id, module_code, grade, completed_at, is_verified, verification_status, review_note, reviewed_at, allow_resubmit, transcript_path, subjects(title)",
-    )
-    .eq("tutor_id", user!.id)
-    .order("completed_at", { ascending: false });
+  const [{ data: profile }, { data: moduleRows }, { data: upcomingData }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("full_name, is_active, avg_rating, rating_count, sessions_completed")
+      .eq("id", user!.id)
+      .maybeSingle(),
+    supabase
+      .from("tutor_modules")
+      .select(
+        "id, module_code, grade, completed_at, is_verified, verification_status, review_note, reviewed_at, allow_resubmit, transcript_path, subjects(title)",
+      )
+      .eq("tutor_id", user!.id)
+      .order("completed_at", { ascending: false }),
+    supabase
+      .from("bookings")
+      .select(
+        "id, module_code, scheduled_start, scheduled_end, amount, escrow_state, student:profiles!bookings_student_id_fkey(full_name)",
+      )
+      .eq("tutor_id", user!.id)
+      .gte("scheduled_start", new Date().toISOString())
+      .not("escrow_state", "in", "(cancelled,refunded)")
+      .order("scheduled_start", { ascending: true })
+      .limit(5),
+  ]);
 
   const modules = (moduleRows as TutorModule[] | null) ?? [];
   const verifiedModules = modules.filter((m) => m.verification_status === "verified");
   const reviewModules = modules.filter((m) => m.verification_status !== "verified");
-
-  const { data: upcomingData } = await supabase
-    .from("bookings")
-    .select(
-      "id, module_code, scheduled_start, scheduled_end, amount, escrow_state, student:profiles!bookings_student_id_fkey(full_name)",
-    )
-    .eq("tutor_id", user!.id)
-    .gte("scheduled_start", new Date().toISOString())
-    .not("escrow_state", "in", "(cancelled,refunded)")
-    .order("scheduled_start", { ascending: true })
-    .limit(5);
 
   const upcoming = (upcomingData as UpcomingBooking[] | null) ?? [];
   const firstName = profile?.full_name?.trim().split(/\s+/)[0] || "there";

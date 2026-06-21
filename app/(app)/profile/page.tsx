@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
 import ProfileForm, { type ProfileFields } from "@/app/components/profile/ProfileForm";
 
 const DEFAULTS: ProfileFields = {
@@ -12,9 +13,7 @@ const DEFAULTS: ProfileFields = {
 
 export default async function ProfilePage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser(supabase);
 
   const { data: profile } = await supabase
     .from("profiles")

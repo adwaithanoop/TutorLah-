@@ -1,20 +1,16 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
 import MessageThread, { type ChatMessage } from "@/app/components/chat/MessageThread";
 import ProposeInChat from "@/app/components/chat/ProposeInChat";
 
 export default async function ThreadPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: other } = await supabase
-    .from("profiles")
-    .select("full_name")
-    .eq("id", userId)
-    .maybeSingle();
+  const [user, { data: other }] = await Promise.all([
+    getCurrentUser(supabase),
+    supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
+  ]);
 
   const { data: messages } = await supabase
     .from("messages")

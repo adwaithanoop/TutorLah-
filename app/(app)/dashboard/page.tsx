@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
+import { listSubjects } from "@/lib/modules/catalog";
 import { searchTutors } from "@/lib/tutors/search";
 import { moduleCodeSchema } from "@/lib/validation/search";
 import TutorResultCard from "@/app/components/TutorResultCard";
@@ -14,24 +16,18 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const parsed = moduleCodeSchema.safeParse(rawModule);
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser(supabase);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, sessions_booked, sessions_completed")
-    .eq("id", user!.id)
-    .maybeSingle();
-
-  const tutors = parsed.success ? await searchTutors(supabase, parsed.data) : [];
+  const [{ data: profile }, tutors, modules] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("full_name, sessions_booked, sessions_completed")
+      .eq("id", user!.id)
+      .maybeSingle(),
+    parsed.success ? searchTutors(supabase, parsed.data) : Promise.resolve([]),
+    listSubjects(),
+  ]);
   const firstName = profile?.full_name?.trim().split(/\s+/)[0] || "there";
-
-  const { data: subjectRows } = await supabase
-    .from("subjects")
-    .select("module_code, title")
-    .order("module_code");
-  const modules = (subjectRows ?? []).map((s) => ({ code: s.module_code, title: s.title }));
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
