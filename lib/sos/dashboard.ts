@@ -130,14 +130,17 @@ async function loadBidderModules(supabase: Client, mine: RawRequest[]) {
   if (tutorIds.length === 0) return map;
 
   const { data } = await supabase
-    .from("tutor_modules")
+    .from("verified_tutor_modules")
     .select("tutor_id, module_code, grade, completed_at, is_verified")
     .in("tutor_id", tutorIds)
-    .in("module_code", moduleCodes);
+    .in("module_code", moduleCodes)
+    .returns<
+      { tutor_id: string; module_code: string; grade: Grade; completed_at: string; is_verified: boolean }[]
+    >();
 
   for (const row of data ?? []) {
     map.set(`${row.tutor_id}|${row.module_code}`, {
-      grade: row.grade as Grade,
+      grade: row.grade,
       completed_at: row.completed_at,
       is_verified: row.is_verified,
     });

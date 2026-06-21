@@ -301,6 +301,52 @@ export type Database = {
           },
         ]
       }
+      module_verification_blocks: {
+        Row: {
+          blocked_at: string
+          blocked_by: string | null
+          module_code: string
+          reason: string | null
+          tutor_id: string
+        }
+        Insert: {
+          blocked_at?: string
+          blocked_by?: string | null
+          module_code: string
+          reason?: string | null
+          tutor_id: string
+        }
+        Update: {
+          blocked_at?: string
+          blocked_by?: string | null
+          module_code?: string
+          reason?: string | null
+          tutor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_verification_blocks_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_verification_blocks_module_code_fkey"
+            columns: ["module_code"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["module_code"]
+          },
+          {
+            foreignKeyName: "module_verification_blocks_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_color: string
@@ -654,7 +700,41 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      verified_tutor_modules: {
+        Row: {
+          avatar_color: string | null
+          avg_rating: number | null
+          completed_at: string | null
+          faculty: string | null
+          full_name: string | null
+          grade: Database["public"]["Enums"]["module_grade"] | null
+          is_active: boolean | null
+          is_verified: boolean | null
+          module_code: string | null
+          rate_per_hour: number | null
+          rating_count: number | null
+          sessions_booked: number | null
+          sessions_completed: number | null
+          tutor_id: string | null
+          year: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutor_modules_module_code_fkey"
+            columns: ["module_code"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["module_code"]
+          },
+          {
+            foreignKeyName: "tutor_modules_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_sos_bid: {

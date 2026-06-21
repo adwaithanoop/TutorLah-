@@ -46,6 +46,12 @@ export async function POST(request: NextRequest) {
     if (error.code === "23505") {
       return NextResponse.json({ error: "You've already added this module" }, { status: 409 });
     }
+    if (error.code === "42501") {
+      return NextResponse.json(
+        { error: "This module was permanently rejected and can no longer be added" },
+        { status: 403 },
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
