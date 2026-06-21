@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
 import { GroupPricing } from "@/lib/pricing/pricing";
 import CreateGroupForm from "@/app/components/group/CreateGroupForm";
 import EnrolButton from "@/app/components/group/EnrolButton";
@@ -18,17 +19,16 @@ function formatSchedule(start: string, end: string) {
 
 export default async function GroupsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: sessions } = await supabase
-    .from("group_sessions")
-    .select(
-      "id, title, module_code, total_cost, max_participants, floor_per_student, scheduled_start, scheduled_end, tutor_id, tutor:profiles!group_sessions_tutor_id_fkey(full_name), group_enrolments(student_id)",
-    )
-    .eq("status", "open")
-    .order("scheduled_start", { ascending: true });
+  const [user, { data: sessions }] = await Promise.all([
+    getCurrentUser(supabase),
+    supabase
+      .from("group_sessions")
+      .select(
+        "id, title, module_code, total_cost, max_participants, floor_per_student, scheduled_start, scheduled_end, tutor_id, tutor:profiles!group_sessions_tutor_id_fkey(full_name), group_enrolments(student_id)",
+      )
+      .eq("status", "open")
+      .order("scheduled_start", { ascending: true }),
+  ]);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">

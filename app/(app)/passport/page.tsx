@@ -1,11 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
 import PassportView, { type PassportReport } from "@/app/components/report/PassportView";
 
 export default async function MyPassportPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser(supabase);
 
   const { data: reports } = await supabase
     .from("session_reports")

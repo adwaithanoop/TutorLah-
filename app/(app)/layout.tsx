@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
 import ModeMenu from "@/app/components/ModeMenu";
 import { getMode } from "./mode";
 
@@ -24,23 +25,13 @@ const SHARED_NAV = [
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const mode = await getMode();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [mode, user] = await Promise.all([getMode(), getCurrentUser(supabase)]);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, avatar_color")
-    .eq("id", user!.id)
-    .maybeSingle();
-
-  const { data: adminRow } = await supabase
-    .from("admins")
-    .select("id")
-    .eq("id", user!.id)
-    .maybeSingle();
+  const [{ data: profile }, { data: adminRow }] = await Promise.all([
+    supabase.from("profiles").select("full_name, avatar_color").eq("id", user!.id).maybeSingle(),
+    supabase.from("admins").select("id").eq("id", user!.id).maybeSingle(),
+  ]);
   const isAdmin = !!adminRow;
 
   const name = profile?.full_name?.trim() || user?.email?.split("@")[0] || "You";

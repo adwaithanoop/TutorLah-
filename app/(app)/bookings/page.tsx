@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
 import BookingActions from "@/app/components/booking/BookingActions";
 import { ESCROW_STATE_LABELS, ESCROW_STATE_STYLES } from "@/app/components/booking/escrowState";
 
@@ -19,16 +20,15 @@ interface BookingView {
 
 export default async function BookingsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data } = await supabase
-    .from("bookings")
-    .select(
-      "id, student_id, tutor_id, module_code, scheduled_start, scheduled_end, amount, escrow_state, report_submitted, student:profiles!bookings_student_id_fkey(full_name), tutor:profiles!bookings_tutor_id_fkey(full_name)",
-    )
-    .order("scheduled_start", { ascending: false });
+  const [user, { data }] = await Promise.all([
+    getCurrentUser(supabase),
+    supabase
+      .from("bookings")
+      .select(
+        "id, student_id, tutor_id, module_code, scheduled_start, scheduled_end, amount, escrow_state, report_submitted, student:profiles!bookings_student_id_fkey(full_name), tutor:profiles!bookings_tutor_id_fkey(full_name)",
+      )
+      .order("scheduled_start", { ascending: false }),
+  ]);
 
   const bookings = (data as BookingView[] | null) ?? [];
 

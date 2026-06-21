@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
+import { listSubjects } from "@/lib/modules/catalog";
 import { loadSosDashboard } from "@/lib/sos/dashboard";
 import PostSosForm from "@/app/components/sos/PostSosForm";
 import BidForm from "@/app/components/sos/BidForm";
@@ -8,16 +10,12 @@ import SosRealtime from "@/app/components/sos/SosRealtime";
 
 export default async function SosPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser(supabase);
 
-  const { myRequests, openForMe } = await loadSosDashboard(supabase, user!.id);
-  const { data: subjectRows } = await supabase
-    .from("subjects")
-    .select("module_code, title")
-    .order("module_code");
-  const modules = (subjectRows ?? []).map((s) => ({ code: s.module_code, title: s.title }));
+  const [{ myRequests, openForMe }, modules] = await Promise.all([
+    loadSosDashboard(supabase, user!.id),
+    listSubjects(),
+  ]);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">

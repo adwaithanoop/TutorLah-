@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/user";
 
 interface BookingPair {
   student_id: string;
@@ -10,15 +11,14 @@ interface BookingPair {
 
 export default async function MessagesPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data } = await supabase
-    .from("bookings")
-    .select(
-      "student_id, tutor_id, student:profiles!bookings_student_id_fkey(full_name), tutor:profiles!bookings_tutor_id_fkey(full_name)",
-    );
+  const [user, { data }] = await Promise.all([
+    getCurrentUser(supabase),
+    supabase
+      .from("bookings")
+      .select(
+        "student_id, tutor_id, student:profiles!bookings_student_id_fkey(full_name), tutor:profiles!bookings_tutor_id_fkey(full_name)",
+      ),
+  ]);
 
   const seen = new Map<string, string>();
   for (const b of (data as BookingPair[] | null) ?? []) {
