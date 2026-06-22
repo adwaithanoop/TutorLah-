@@ -4,11 +4,11 @@ const BUCKET = "backgrounds";
 // To set a background, upload a file at the matching path in Supabase Storage.
 // Until a file exists the URL 404s and the call site's fallback colour shows.
 export const BACKGROUNDS = {
-  hero: "hero.jpg",
-  auth: "auth.jpg",
-  appStudent: "app-student.jpg",
-  appTutor: "app-tutor.jpg",
-  dashboardSearch: "dashboard-search.jpg",
+  hero: "hero.webp",
+  auth: "auth.webp",
+  appStudent: "app-student.webp",
+  appTutor: "app-tutor.webp",
+  dashboardSearch: "dashboard-search.webp",
 } as const;
 
 export type BackgroundName = keyof typeof BACKGROUNDS;
