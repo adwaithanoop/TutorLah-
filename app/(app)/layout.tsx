@@ -13,6 +13,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/user";
 import ModeMenu from "@/app/components/ModeMenu";
+import SiteBackground from "@/app/components/SiteBackground";
 import { getMode } from "./mode";
 
 const SHARED_NAV = [
@@ -45,7 +46,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const navItems = [homeNav, ...SHARED_NAV];
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="relative isolate min-h-screen bg-cream">
+      <SiteBackground
+        name={mode === "tutor" ? "appTutor" : "appStudent"}
+        overlayClassName="bg-cream/85"
+      />
       <header className="sticky top-0 z-40 border-b border-indigo-100/70 bg-cream/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href={home} className="text-lg font-bold tracking-tight text-indigo-950">

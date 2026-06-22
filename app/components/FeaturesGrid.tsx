@@ -63,7 +63,7 @@ export default function FeaturesGrid() {
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-indigo-100/80">
             Every feature was designed to solve a specific pain point, from
-            finding a credible tutor to protecting your payment to building
+            finding a credible tutor to protecting your payment and building
             long-term academic momentum.
           </p>
         </div>

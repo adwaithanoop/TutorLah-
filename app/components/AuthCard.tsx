@@ -1,5 +1,6 @@
 import Link from "next/link";
 import MagicLinkForm from "./MagicLinkForm";
+import SiteBackground from "./SiteBackground";
 
 const ERROR_MESSAGES: Record<string, string> = {
   domain: "That account isn't an @u.nus.edu address. TutorLah is NUS-only for now.",
@@ -31,7 +32,8 @@ export default function AuthCard({
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <aside className="relative hidden overflow-hidden bg-indigo-950 lg:flex lg:flex-col lg:justify-between lg:p-12">
+      <aside className="relative isolate hidden overflow-hidden bg-indigo-950 lg:flex lg:flex-col lg:justify-between lg:p-12">
+        <SiteBackground name="auth" overlayClassName="bg-indigo-950/70" />
         <Link href="/" className="relative text-2xl font-extrabold tracking-tight text-white">
           Tutor<span className="text-sky-300">Lah</span>
         </Link>

@@ -5,6 +5,7 @@ import { searchTutors } from "@/lib/tutors/search";
 import { moduleCodeSchema } from "@/lib/validation/search";
 import TutorResultCard from "@/app/components/TutorResultCard";
 import DashboardModuleSearch from "@/app/components/DashboardModuleSearch";
+import { backgroundUrl } from "@/lib/backgrounds";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -39,17 +40,28 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
         <p className="mt-1 text-indigo-900/60">Find module-verified help and track your progress.</p>
       </header>
 
-      <section className="mb-10 rounded-2xl bg-indigo-600 p-7 text-white shadow-soft-lg sm:p-9">
-        <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Need help with a module?</h2>
-        <p className="mt-1 text-indigo-100">
-          Search any NUS module code to see verified tutors ranked by Reliability Score.
-        </p>
-        <DashboardModuleSearch modules={modules} initialModule={rawModule} />
-        {parsed.success && (
-          <p className="mt-3 text-sm text-indigo-100">
-            Showing tutors for <span className="font-mono font-semibold text-white">{parsed.data}</span>
-          </p>
-        )}
+      <section className="mb-10 overflow-hidden rounded-2xl bg-indigo-600 text-white shadow-soft-lg">
+        <div className="grid md:grid-cols-2">
+          <div className="p-7 sm:p-9">
+            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Need help with a module?</h2>
+            <p className="mt-1 text-indigo-100">
+              Search any NUS module code to see verified tutors ranked by Reliability Score.
+            </p>
+            <DashboardModuleSearch modules={modules} initialModule={rawModule} />
+            {parsed.success && (
+              <p className="mt-3 text-sm text-indigo-100">
+                Showing tutors for <span className="font-mono font-semibold text-white">{parsed.data}</span>
+              </p>
+            )}
+          </div>
+          <div
+            aria-hidden
+            className="relative hidden bg-contain bg-no-repeat bg-right md:block"
+            style={{ backgroundImage: `url("${backgroundUrl("dashboardSearch")}")` }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-indigo-600/40 to-transparent" />
+          </div>
+        </div>
       </section>
 
       {parsed.success ? (
