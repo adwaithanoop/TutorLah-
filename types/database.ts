@@ -698,6 +698,112 @@ export type Database = {
           },
         ]
       }
+      wallet_topups: {
+        Row: {
+          amount: number
+          completed_at: string | null
+          created_at: string
+          id: string
+          status: Database["public"]["Enums"]["topup_status"]
+          stripe_session_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["topup_status"]
+          stripe_session_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["topup_status"]
+          stripe_session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_topups_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["wallet_txn_kind"]
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["wallet_txn_kind"]
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["wallet_txn_kind"]
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance: number
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallets_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       verified_tutor_modules: {
@@ -741,6 +847,18 @@ export type Database = {
         Args: { p_bid: string; p_request: string }
         Returns: string
       }
+      book_and_pay: {
+        Args: {
+          p_amount: number
+          p_end: string
+          p_module: string
+          p_price_type: Database["public"]["Enums"]["price_type"]
+          p_start: string
+          p_student: string
+          p_tutor: string
+        }
+        Returns: Database["public"]["Tables"]["bookings"]["Row"]
+      }
       enrol_in_group: { Args: { p_group: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
       is_nus: { Args: never; Returns: boolean }
@@ -754,6 +872,19 @@ export type Database = {
         Returns: undefined
       }
       shares_booking: { Args: { a: string; b: string }; Returns: boolean }
+      complete_booking: {
+        Args: { p_booking: string }
+        Returns: Database["public"]["Tables"]["bookings"]["Row"]
+      }
+      credit_topup: { Args: { p_session_id: string }; Returns: undefined }
+      pay_booking: {
+        Args: { p_booking: string }
+        Returns: Database["public"]["Tables"]["bookings"]["Row"]
+      }
+      refund_booking: {
+        Args: { p_booking: string }
+        Returns: Database["public"]["Tables"]["bookings"]["Row"]
+      }
     }
     Enums: {
       bid_status: "pending" | "accepted" | "rejected"
@@ -768,7 +899,9 @@ export type Database = {
       price_type: "fixed" | "negotiable"
       sos_status: "open" | "matched" | "cancelled"
       subject_level: "o_level" | "a_level" | "nus" | "ntu"
+      topup_status: "pending" | "completed"
       verification_status: "pending" | "verified" | "rejected"
+      wallet_txn_kind: "topup" | "escrow_hold" | "escrow_release" | "escrow_refund"
     }
     CompositeTypes: {
       [_ in never]: never
