@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Only the tutor can submit the report" }, { status: 403 });
   }
   if (booking.escrow_state !== "held") {
-    return NextResponse.json({ error: "Reports are submitted on in-escrow sessions" }, { status: 409 });
+    return NextResponse.json({ error: "Reports can only be submitted once the session is paid" }, { status: 409 });
   }
 
   const { data: report, error } = await supabase

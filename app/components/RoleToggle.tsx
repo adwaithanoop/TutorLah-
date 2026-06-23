@@ -26,7 +26,7 @@ const studentSteps: Step[] = [
     number: "03",
     title: "Book & Pay Securely",
     description:
-      "Select a time slot from mutual availability, agree on a rate, and confirm. Your payment is held in escrow, only released when the session is completed.",
+      "Select a time slot from mutual availability, agree on a rate, and confirm. Your payment is held safely until the session is completed.",
   },
   {
     number: "04",
@@ -59,7 +59,7 @@ const tutorSteps: Step[] = [
     number: "04",
     title: "Complete & Get Paid",
     description:
-      "Submit your session report to unlock payment. The student's escrow funds are transferred to you instantly once the report is filed and the time-lock passes.",
+      "Submit your session report to unlock payment. The student's held payment is transferred to you once the report is filed and the time-lock passes.",
   },
 ];
 

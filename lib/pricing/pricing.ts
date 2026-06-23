@@ -25,25 +25,6 @@ export class FixedPricing extends Pricing {
   }
 }
 
-export class NegotiablePricing extends Pricing {
-  constructor(
-    private readonly agreed: number,
-    private readonly min: number,
-    private readonly max: number,
-  ) {
-    super();
-    if (min < 0) throw new Error("min must not be negative");
-    if (min > max) throw new Error("min must not exceed max");
-  }
-
-  quote(): number {
-    if (this.agreed < this.min || this.agreed > this.max) {
-      throw new Error("agreed amount is outside the negotiated range");
-    }
-    return Pricing.round(this.agreed);
-  }
-}
-
 export class GroupPricing extends Pricing {
   constructor(
     private readonly totalCost: number,

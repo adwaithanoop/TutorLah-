@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/user";
+import { getBalance } from "@/lib/wallet/service";
 import ModeMenu from "@/app/components/ModeMenu";
 import SiteBackground from "@/app/components/SiteBackground";
 import { getMode } from "./mode";
@@ -29,9 +30,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = await createClient();
   const [mode, user] = await Promise.all([getMode(), getCurrentUser(supabase)]);
 
-  const [{ data: profile }, { data: adminRow }] = await Promise.all([
+  const [{ data: profile }, { data: adminRow }, balance] = await Promise.all([
     supabase.from("profiles").select("full_name, avatar_color").eq("id", user!.id).maybeSingle(),
     supabase.from("admins").select("id").eq("id", user!.id).maybeSingle(),
+    getBalance(supabase, user!.id),
   ]);
   const isAdmin = !!adminRow;
 
@@ -77,7 +79,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </Link>
             )}
           </nav>
-          <ModeMenu name={name} mode={mode} avatarColor={avatarColor} />
+          <ModeMenu name={name} mode={mode} avatarColor={avatarColor} balance={balance} />
         </div>
       </header>
       {children}

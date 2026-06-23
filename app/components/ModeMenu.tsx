@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeftRight, ChevronDown, GraduationCap, LogOut, UserRound } from "lucide-react";
+import { ArrowLeftRight, ChevronDown, GraduationCap, LogOut, UserRound, Wallet } from "lucide-react";
 import { switchMode } from "@/app/(app)/actions";
 import { signOut } from "@/app/auth/actions";
 import type { Mode } from "@/app/(app)/mode";
@@ -17,10 +17,12 @@ export default function ModeMenu({
   name,
   mode,
   avatarColor,
+  balance,
 }: {
   name: string;
   mode: Mode;
   avatarColor: string;
+  balance: number;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -65,6 +67,7 @@ export default function ModeMenu({
             <div className="leading-tight">
               <p className="text-sm font-semibold text-indigo-950">{name}</p>
               <p className="text-xs capitalize text-indigo-900/50">{mode} mode</p>
+              <p className="mt-1 text-sm font-bold text-indigo-700">${balance.toFixed(2)}</p>
             </div>
           </div>
 
@@ -80,6 +83,15 @@ export default function ModeMenu({
             )}
             Switch to {other} mode
           </button>
+
+          <Link
+            href="/wallet"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-indigo-900 transition-colors hover:bg-indigo-50"
+          >
+            <Wallet className="h-4 w-4 text-indigo-900/50" strokeWidth={2} />
+            Wallet
+          </Link>
 
           <Link
             href="/profile"

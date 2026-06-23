@@ -1,4 +1,4 @@
-import { FixedPricing, NegotiablePricing, GroupPricing } from "./pricing";
+import { FixedPricing, GroupPricing } from "./pricing";
 
 describe("FixedPricing", () => {
   test("multiplies the hourly rate by the number of hours", () => {
@@ -17,34 +17,6 @@ describe("FixedPricing", () => {
   test("rejects non-positive hours", () => {
     expect(() => new FixedPricing(40, 0)).toThrow();
     expect(() => new FixedPricing(40, -1)).toThrow();
-  });
-});
-
-describe("NegotiablePricing", () => {
-  test("returns the agreed amount when within bounds", () => {
-    expect(new NegotiablePricing(50, 30, 70).quote()).toBe(50);
-  });
-
-  test("accepts the agreed amount at either bound", () => {
-    expect(new NegotiablePricing(30, 30, 70).quote()).toBe(30);
-    expect(new NegotiablePricing(70, 30, 70).quote()).toBe(70);
-  });
-
-  test("rounds the quote to two decimals", () => {
-    expect(new NegotiablePricing(49.999, 30, 70).quote()).toBe(50);
-  });
-
-  test("throws when the agreed amount is outside bounds", () => {
-    expect(() => new NegotiablePricing(20, 30, 70).quote()).toThrow();
-    expect(() => new NegotiablePricing(80, 30, 70).quote()).toThrow();
-  });
-
-  test("rejects a range where min exceeds max", () => {
-    expect(() => new NegotiablePricing(50, 70, 30)).toThrow();
-  });
-
-  test("rejects a negative lower bound", () => {
-    expect(() => new NegotiablePricing(50, -10, 70)).toThrow();
   });
 });
 

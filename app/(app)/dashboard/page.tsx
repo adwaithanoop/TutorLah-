@@ -40,7 +40,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
         <p className="mt-1 text-indigo-900/60">Find module-verified help and track your progress.</p>
       </header>
 
-      <section className="mb-10 overflow-hidden rounded-2xl bg-indigo-600 text-white shadow-soft-lg">
+      <section className="mb-10 rounded-2xl bg-indigo-600 text-white shadow-soft-lg">
         <div className="grid md:grid-cols-2">
           <div className="p-7 sm:p-9">
             <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Need help with a module?</h2>
@@ -56,7 +56,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
           </div>
           <div
             aria-hidden
-            className="relative hidden bg-contain bg-no-repeat bg-right md:block"
+            className="relative hidden overflow-hidden rounded-r-2xl bg-contain bg-no-repeat bg-right md:block"
             style={{ backgroundImage: `url("${backgroundUrl("dashboardSearch")}")` }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-indigo-600/40 to-transparent" />

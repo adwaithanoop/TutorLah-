@@ -9,7 +9,7 @@ export const ESCROW_STATE_STYLES: Record<string, string> = {
 
 export const ESCROW_STATE_LABELS: Record<string, string> = {
   pending_payment: "Awaiting payment",
-  held: "In escrow",
+  held: "Payment complete",
   completed: "Completed",
   released: "Paid out",
   cancelled: "Cancelled",

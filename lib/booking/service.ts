@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import { BookingEscrow, type EscrowState } from "./escrow";
-import { FixedPricing, NegotiablePricing } from "@/lib/pricing/pricing";
+import { FixedPricing } from "@/lib/pricing/pricing";
 import type { CreateBooking, BookingEvent } from "@/lib/validation/booking";
 
 type Admin = SupabaseClient<Database>;
@@ -9,44 +9,55 @@ export type BookingRow = Database["public"]["Tables"]["bookings"]["Row"];
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 
-export function quoteAmount(input: CreateBooking): number {
-  const hours =
-    (Date.parse(input.scheduled_end) - Date.parse(input.scheduled_start)) / MS_PER_HOUR;
-  if (input.price_type === "fixed") {
-    return new FixedPricing(input.rate_per_hour!, hours).quote();
-  }
-  return new NegotiablePricing(input.agreed!, input.min!, input.max!).quote();
+// Prices a session at the tutor's published hourly rate. The rate is supplied by the
+// caller from the tutor's profile, never from the student's request.
+export function quoteFixed(ratePerHour: number, startIso: string, endIso: string): number {
+  const hours = (Date.parse(endIso) - Date.parse(startIso)) / MS_PER_HOUR;
+  return new FixedPricing(ratePerHour, hours).quote();
 }
 
-export async function createBooking(
+// Creates the booking and holds the escrow in one atomic step. A booking is never
+// persisted unless the student's wallet can cover it, so paying is what confirms it.
+export async function bookAndPay(
   admin: Admin,
   studentId: string,
   input: CreateBooking,
+  amount: number,
 ): Promise<BookingRow> {
-  const amount = quoteAmount(input);
-  const { data, error } = await admin
-    .from("bookings")
-    .insert({
-      student_id: studentId,
-      tutor_id: input.tutor_id,
-      module_code: input.module_code,
-      scheduled_start: input.scheduled_start,
-      scheduled_end: input.scheduled_end,
-      price_type: input.price_type,
-      amount,
-    })
-    .select()
-    .single();
-  if (error) throw error;
+  const { data, error } = await admin.rpc("book_and_pay", {
+    p_student: studentId,
+    p_tutor: input.tutor_id,
+    p_module: input.module_code,
+    p_start: input.scheduled_start,
+    p_end: input.scheduled_end,
+    p_price_type: "fixed",
+    p_amount: amount,
+  });
+  if (error || !data) throw new Error(error?.message ?? "Could not book session");
   return data;
 }
+
+const MONEY_EVENTS = {
+  pay: "pay_booking",
+  complete: "complete_booking",
+  refund: "refund_booking",
+} as const;
 
 export async function applyEvent(
   admin: Admin,
   booking: BookingRow,
   event: BookingEvent,
-  now: Date,
 ): Promise<BookingRow> {
+  // Money transitions move funds and change state in one locked database
+  // transaction, so the balance check and the escrow state can never drift apart.
+  if (event === "pay" || event === "complete" || event === "refund") {
+    const { data, error } = await admin.rpc(MONEY_EVENTS[event], { p_booking: booking.id });
+    if (error || !data) throw new Error(error?.message ?? "Transition failed");
+    return data;
+  }
+
+  // Cancel and report move no money, so the in-memory state machine stays the
+  // single authority for those transitions.
   const escrow = new BookingEscrow(
     { scheduledEnd: new Date(booking.scheduled_end) },
     booking.escrow_state as EscrowState,
@@ -56,24 +67,11 @@ export async function applyEvent(
   }
 
   let reportSubmitted = booking.report_submitted;
-  switch (event) {
-    case "pay":
-      escrow.pay();
-      break;
-    case "cancel":
-      escrow.cancel();
-      break;
-    case "refund":
-      escrow.refund();
-      break;
-    case "report":
-      escrow.submitReport();
-      reportSubmitted = true;
-      break;
-    case "complete":
-      escrow.complete(now);
-      escrow.release();
-      break;
+  if (event === "cancel") {
+    escrow.cancel();
+  } else {
+    escrow.submitReport();
+    reportSubmitted = true;
   }
 
   const { data, error } = await admin
