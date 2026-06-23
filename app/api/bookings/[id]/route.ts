@@ -32,7 +32,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    const updated = await applyEvent(createAdminClient(), booking, parsed.data.event, new Date());
+    const updated = await applyEvent(createAdminClient(), booking, parsed.data.event);
     return NextResponse.json({ booking: updated });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Transition failed";

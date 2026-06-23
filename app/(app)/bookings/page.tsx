@@ -52,7 +52,7 @@ export default async function BookingsPage() {
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-sm font-semibold text-indigo-700">{b.module_code}</span>
                       <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${ESCROW_STATE_STYLES[b.escrow_state]}`}>
-                        {ESCROW_STATE_STYLES[b.escrow_state]}
+                        {ESCROW_STATE_LABELS[b.escrow_state]}
                       </span>
                       <span className="text-xs text-gray-400">
                         {role === "tutor" ? "Teaching" : "Learning from"} {counterparty}
@@ -69,6 +69,7 @@ export default async function BookingsPage() {
                     bookingId={b.id}
                     escrowState={b.escrow_state}
                     reportSubmitted={b.report_submitted}
+                    amount={Number(b.amount)}
                     role={role}
                   />
                   <Link

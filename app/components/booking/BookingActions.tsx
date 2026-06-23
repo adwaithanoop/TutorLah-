@@ -10,20 +10,24 @@ export default function BookingActions({
   bookingId,
   escrowState,
   reportSubmitted,
+  amount,
   role,
 }: {
   bookingId: string;
   escrowState: string;
   reportSubmitted: boolean;
+  amount: number;
   role: "student" | "tutor";
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [needsTopUp, setNeedsTopUp] = useState(false);
 
   async function fire(event: Event) {
     setBusy(true);
     setError("");
+    setNeedsTopUp(false);
     const res = await fetch(`/api/bookings/${bookingId}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -31,7 +35,12 @@ export default function BookingActions({
     });
     setBusy(false);
     if (!res.ok) {
-      setError((await res.json()).error ?? "Action failed");
+      const message = (await res.json()).error ?? "Action failed";
+      if (event === "pay" && /insufficient/i.test(message)) {
+        setNeedsTopUp(true);
+        return;
+      }
+      setError(message);
       return;
     }
     router.refresh();
@@ -40,11 +49,11 @@ export default function BookingActions({
   const actions: Array<{ event: Event; label: string; primary?: boolean }> = [];
   const showReportLink = escrowState === "held" && role === "tutor" && !reportSubmitted;
   if (escrowState === "pending_payment" && role === "student") {
-    actions.push({ event: "pay", label: "Pay into escrow", primary: true }, { event: "cancel", label: "Cancel" });
+    actions.push({ event: "pay", label: "Pay now", primary: true }, { event: "cancel", label: "Cancel" });
   }
   if (escrowState === "held") {
     if (role === "tutor") {
-      actions.push({ event: "complete", label: "Mark complete & release", primary: reportSubmitted });
+      actions.push({ event: "complete", label: "Mark complete", primary: reportSubmitted });
     }
     actions.push({ event: "refund", label: "Request refund" });
   }
@@ -84,6 +93,14 @@ export default function BookingActions({
           {a.label}
         </button>
       ))}
+      {needsTopUp && (
+        <Link
+          href={`/wallet?need=${amount}`}
+          className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-400"
+        >
+          Top up to pay
+        </Link>
+      )}
       {error && <span className="text-xs text-red-600">{error}</span>}
     </div>
   );

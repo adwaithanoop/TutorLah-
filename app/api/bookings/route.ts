@@ -2,7 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createBookingSchema } from "@/lib/validation/booking";
-import { createBooking } from "@/lib/booking/service";
+import { quoteFixed, bookAndPay } from "@/lib/booking/service";
+import { getBalance } from "@/lib/wallet/service";
+import { suggestTopUp } from "@/lib/wallet/money";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -26,11 +28,45 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "You cannot book yourself" }, { status: 400 });
   }
 
+  // The tutor's published rate is the source of truth for the price.
+  const { data: tutor } = await supabase
+    .from("profiles")
+    .select("rate_per_hour")
+    .eq("id", parsed.data.tutor_id)
+    .maybeSingle();
+  if (!tutor) return NextResponse.json({ error: "Tutor not found" }, { status: 404 });
+  const rate = Number(tutor.rate_per_hour);
+  if (!(rate > 0)) {
+    return NextResponse.json({ error: "This tutor has not set a rate yet" }, { status: 400 });
+  }
+
+  let amount: number;
   try {
-    const booking = await createBooking(createAdminClient(), user.id, parsed.data);
+    amount = quoteFixed(rate, parsed.data.scheduled_start, parsed.data.scheduled_end);
+  } catch {
+    return NextResponse.json({ error: "Invalid session times" }, { status: 400 });
+  }
+
+  const balance = await getBalance(supabase, user.id);
+  if (balance < amount) {
+    return NextResponse.json(
+      { error: "insufficient", amount, balance, shortfall: suggestTopUp(amount, balance) },
+      { status: 402 },
+    );
+  }
+
+  try {
+    const booking = await bookAndPay(createAdminClient(), user.id, parsed.data, amount);
     return NextResponse.json({ booking });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not create booking";
+    const message = error instanceof Error ? error.message : "Could not book session";
+    if (/insufficient/i.test(message)) {
+      const fresh = await getBalance(supabase, user.id);
+      return NextResponse.json(
+        { error: "insufficient", amount, balance: fresh, shortfall: suggestTopUp(amount, fresh) },
+        { status: 402 },
+      );
+    }
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
