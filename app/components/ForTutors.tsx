@@ -21,7 +21,7 @@ const benefits: Benefit[] = [
   {
     title: "Guaranteed payment, always",
     description:
-      "Student funds are escrowed before the session starts. Once you complete and file your report, you get paid. No chasing, no awkwardness.",
+      "Student funds are held before the session starts. Once you complete and file your report, you get paid. No chasing, no awkwardness.",
   },
 ];
 

@@ -10,7 +10,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 const VALUE_BULLETS = [
   "Verified module badges",
   "5-Factor Reliability Score",
-  "Escrow-protected payments",
+  "Payments held until your session is done",
 ];
 
 export default function AuthCard({

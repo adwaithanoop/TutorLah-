@@ -42,9 +42,9 @@ const features: Feature[] = [
     span: "lg:col-span-3",
   },
   {
-    title: "Escrow-Protected Payments",
+    title: "Protected Payments",
     description:
-      "Your money is held securely in escrow and only released to the tutor after the session is complete and a report is submitted. Built-in dispute resolution protects both sides.",
+      "Your money is held securely until the session is complete and a report is submitted, then paid to the tutor. Built-in dispute resolution protects both sides.",
     highlight: false,
     span: "lg:col-span-3",
   },
