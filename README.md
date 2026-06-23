@@ -100,3 +100,285 @@ unit tested, the frontend just renders and collects input.
 
 - **Adwaith Anoop**
 - **Daniel Wong**
+
+
+erDiagram
+    %% Core Entities
+    profiles {
+        uuid id PK
+        text full_name
+        text faculty
+        text year
+        boolean is_active
+        text avatar_color
+        numeric rate_per_hour
+        numeric avg_rating
+        integer rating_count
+        integer sessions_completed
+        integer sessions_booked
+        timestamp created_at
+    }
+
+    subjects {
+        text module_code PK
+        USER_DEFINED level
+        text title
+        text parent_id FK
+        timestamp created_at
+        text module_display
+    }
+
+    admins {
+        uuid id PK, FK
+        timestamp granted_at
+        uuid granted_by FK
+    }
+
+    %% Tutoring & Modules
+    tutor_modules {
+        uuid id PK
+        uuid tutor_id FK
+        text module_code FK
+        USER_DEFINED grade
+        date completed_at
+        boolean is_verified
+        timestamp created_at
+        text transcript_path
+        USER_DEFINED verification_status
+        uuid reviewed_by FK
+        timestamp reviewed_at
+        text review_note
+        boolean allow_resubmit
+    }
+
+    module_verification_blocks {
+        uuid tutor_id PK, FK
+        text module_code PK, FK
+        text reason
+        uuid blocked_by FK
+        timestamp blocked_at
+    }
+
+    %% Booking & Scheduling System
+    bookings {
+        uuid id PK
+        uuid student_id FK
+        uuid tutor_id FK
+        text module_code FK
+        timestamp scheduled_start
+        timestamp scheduled_end
+        USER_DEFINED price_type
+        numeric amount
+        USER_DEFINED escrow_state
+        boolean report_submitted
+        timestamp created_at
+    }
+
+    booking_requests {
+        uuid id PK
+        uuid student_id FK
+        uuid tutor_id FK
+        text module_code FK
+        timestamp scheduled_start
+        timestamp scheduled_end
+        numeric amount
+        USER_DEFINED status
+        timestamp expires_at
+        uuid booking_id FK
+        timestamp created_at
+        timestamp resolved_at
+    }
+
+    counter_offers {
+        uuid id PK
+        uuid request_id FK
+        uuid student_id FK
+        uuid tutor_id FK
+        text module_code FK
+        numeric amount
+        USER_DEFINED status
+        timestamp expires_at
+        uuid booking_id FK
+        timestamp created_at
+        timestamp resolved_at
+    }
+
+    counter_offer_slots {
+        uuid id PK
+        uuid offer_id FK
+        timestamp scheduled_start
+        timestamp scheduled_end
+    }
+
+    group_sessions {
+        uuid id PK
+        uuid tutor_id FK
+        text module_code FK
+        text title
+        numeric total_cost
+        integer max_participants
+        numeric floor_per_student
+        timestamp scheduled_start
+        timestamp scheduled_end
+        text status
+        timestamp created_at
+    }
+
+    group_enrolments {
+        uuid id PK
+        uuid group_session_id FK
+        uuid student_id FK
+        numeric price_charged
+        timestamp created_at
+    }
+
+    availability {
+        uuid id PK
+        uuid profile_id FK
+        timestamp starts_at
+        timestamp ends_at
+        text kind
+        timestamp created_at
+    }
+
+    availability_blocks {
+        uuid id PK
+        uuid profile_id FK
+        smallint weekday
+        integer start_minute
+        integer end_minute
+        timestamp created_at
+    }
+
+    %% Post-session & Communication
+    session_reports {
+        uuid id PK
+        uuid booking_id UK, FK
+        uuid student_id FK
+        uuid tutor_id FK
+        text module_code FK
+        text misconceptions
+        text summary
+        timestamp created_at
+    }
+
+    reviews {
+        uuid id PK
+        uuid booking_id UK, FK
+        uuid student_id FK
+        uuid tutor_id FK
+        integer rating
+        text comment
+        timestamp created_at
+    }
+
+    messages {
+        uuid id PK
+        uuid sender_id FK
+        uuid recipient_id FK
+        text body
+        timestamp created_at
+    }
+
+    %% SOS System
+    sos_requests {
+        uuid id PK
+        uuid student_id FK
+        text module_code FK
+        text description
+        USER_DEFINED status
+        timestamp created_at
+    }
+
+    sos_bids {
+        uuid id PK
+        uuid request_id FK
+        uuid tutor_id FK
+        numeric rate
+        USER_DEFINED status
+        timestamp created_at
+    }
+
+    %% Financial / Wallet
+    wallets {
+        uuid id PK, FK
+        numeric balance
+        timestamp updated_at
+    }
+
+    wallet_transactions {
+        uuid id PK
+        uuid wallet_id FK
+        uuid booking_id FK
+        USER_DEFINED kind
+        numeric amount
+        timestamp created_at
+    }
+
+    wallet_topups {
+        uuid id PK
+        uuid user_id FK
+        text stripe_session_id UK
+        numeric amount
+        USER_DEFINED status
+        timestamp created_at
+        timestamp completed_at
+    }
+
+    %% Relationships
+    subjects ||--o{ subjects : "parent_id"
+    profiles ||--o{ admins : "grants/has role"
+    profiles ||--o{ admins : "granted_by"
+    
+    profiles ||--o{ tutor_modules : "tutors"
+    profiles ||--o{ tutor_modules : "reviews"
+    subjects ||--o{ tutor_modules : "applies to"
+    profiles ||--o{ module_verification_blocks : "blocked tutor"
+    profiles ||--o{ module_verification_blocks : "blocked by admin"
+    subjects ||--o{ module_verification_blocks : "blocked for"
+
+    profiles ||--o{ bookings : "student"
+    profiles ||--o{ bookings : "tutor"
+    subjects ||--o{ bookings : "for subject"
+
+    profiles ||--o{ booking_requests : "student"
+    profiles ||--o{ booking_requests : "tutor"
+    subjects ||--o{ booking_requests : "for subject"
+    bookings ||--o| booking_requests : "fulfills"
+
+    booking_requests ||--o{ counter_offers : "counters"
+    profiles ||--o{ counter_offers : "student"
+    profiles ||--o{ counter_offers : "tutor"
+    subjects ||--o{ counter_offers : "for subject"
+    bookings ||--o| counter_offers : "fulfills"
+    counter_offers ||--o{ counter_offer_slots : "proposes"
+
+    profiles ||--o{ group_sessions : "hosts"
+    subjects ||--o{ group_sessions : "covers"
+    group_sessions ||--o{ group_enrolments : "has"
+    profiles ||--o{ group_enrolments : "enrolled student"
+
+    profiles ||--o{ availability : "sets"
+    profiles ||--o{ availability_blocks : "sets recurring"
+
+    bookings ||--o| session_reports : "documents"
+    profiles ||--o{ session_reports : "student"
+    profiles ||--o{ session_reports : "tutor"
+    subjects ||--o{ session_reports : "subject"
+
+    bookings ||--o| reviews : "rates"
+    profiles ||--o{ reviews : "by student"
+    profiles ||--o{ reviews : "for tutor"
+
+    profiles ||--o{ messages : "sends"
+    profiles ||--o{ messages : "receives"
+
+    profiles ||--o{ sos_requests : "creates"
+    subjects ||--o{ sos_requests : "targets"
+    sos_requests ||--o{ sos_bids : "receives"
+    profiles ||--o{ sos_bids : "placed by"
+
+    profiles ||--|| wallets : "owns"
+    wallets ||--o{ wallet_transactions : "logs"
+    bookings ||--o{ wallet_transactions : "funds"
+    profiles ||--o{ wallet_topups : "initiates"
