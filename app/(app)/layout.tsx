@@ -22,9 +22,10 @@ const SHARED_NAV = [
   { href: "/groups", label: "Groups", icon: Users },
   { href: "/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/messages", label: "Messages", icon: MessagesSquare },
-  { href: "/schedule", label: "Schedule", icon: CalendarDays },
-  { href: "/passport", label: "Passport", icon: IdCard },
 ];
+
+const SCHEDULE_NAV = { href: "/schedule", label: "Schedule", icon: CalendarDays };
+const PASSPORT_NAV = { href: "/passport", label: "Passport", icon: IdCard };
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -45,7 +46,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     mode === "tutor"
       ? { href: home, label: "Dashboard", icon: LayoutDashboard }
       : { href: home, label: "Find tutors", icon: Search };
-  const navItems = [homeNav, ...SHARED_NAV];
+  const navItems = [
+    homeNav,
+    ...SHARED_NAV,
+    ...(mode === "tutor" ? [SCHEDULE_NAV] : []),
+    PASSPORT_NAV,
+  ];
 
   return (
     <div className="relative isolate min-h-screen bg-cream">
