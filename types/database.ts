@@ -67,41 +67,6 @@ export type Database = {
           },
         ]
       }
-      availability: {
-        Row: {
-          created_at: string
-          ends_at: string
-          id: string
-          kind: string
-          profile_id: string
-          starts_at: string
-        }
-        Insert: {
-          created_at?: string
-          ends_at: string
-          id?: string
-          kind?: string
-          profile_id: string
-          starts_at: string
-        }
-        Update: {
-          created_at?: string
-          ends_at?: string
-          id?: string
-          kind?: string
-          profile_id?: string
-          starts_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "availability_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       availability_blocks: {
         Row: {
           created_at: string

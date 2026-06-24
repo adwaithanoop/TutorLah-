@@ -10,27 +10,9 @@ export class Availability {
     this.slots = Availability.normalise(slots);
   }
 
-  intersect(other: Availability, minDuration = 0): TimeInterval[] {
-    const result: TimeInterval[] = [];
-    let i = 0;
-    let j = 0;
-    while (i < this.slots.length && j < other.slots.length) {
-      const a = this.slots[i];
-      const b = other.slots[j];
-      const start = a.start > b.start ? a.start : b.start;
-      const end = a.end < b.end ? a.end : b.end;
-      if (start < end && end.getTime() - start.getTime() >= minDuration) {
-        result.push({ start, end });
-      }
-      if (a.end < b.end) i++;
-      else j++;
-    }
-    return result;
-  }
-
   // Removes the busy intervals from this availability, leaving the gaps a session can
   // still be booked into. Touching endpoints do not chip a window (a booking ending at
-  // 6pm leaves 6pm free), matching how intersect treats them.
+  // 6pm leaves 6pm free).
   subtract(busy: Availability): TimeInterval[] {
     const result: TimeInterval[] = [];
     const blocks = busy.slots;
