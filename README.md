@@ -6,7 +6,7 @@ wallet, and book a session whose payment is held until the session is complete.
 ## What it does
 
 - **Dual-mode dashboard.** One account, two modes. Switch between student and tutor from
-  the dashboard: students search and book, tutors manage requests and availability.
+  the dashboard: students search and book, tutors manage requests and set their schedule.
 - **Verified tutors.** Tutors upload their transcript to get a verified badge for a
   module. Students search by module code from the dashboard.
 - **Wallet and held payments.** Students top up a wallet with card or PayNow through
