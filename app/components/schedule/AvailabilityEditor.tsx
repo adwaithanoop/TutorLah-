@@ -41,7 +41,13 @@ export default function AvailabilityEditor({ slots }: { slots: Slot[] }) {
 
   return (
     <div className="space-y-4 rounded-2xl bg-white shadow-soft p-6">
-      <h2 className="font-bold text-gray-900">Your availability</h2>
+      <div>
+        <h2 className="font-bold text-gray-900">One-off slots for chat proposals</h2>
+        <p className="text-sm text-gray-500">
+          Specific dates used only to suggest a mutual time when you propose a session in chat. These
+          are not bookable. To take bookings, set your weekly hours above.
+        </p>
+      </div>
       <form onSubmit={add} className="flex flex-wrap items-end gap-3">
         <label>
           <span className="mb-1.5 block text-sm font-medium text-gray-700">From</span>
