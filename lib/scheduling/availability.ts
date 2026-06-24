@@ -28,6 +28,26 @@ export class Availability {
     return result;
   }
 
+  // Removes the busy intervals from this availability, leaving the gaps a session can
+  // still be booked into. Touching endpoints do not chip a window (a booking ending at
+  // 6pm leaves 6pm free), matching how intersect treats them.
+  subtract(busy: Availability): TimeInterval[] {
+    const result: TimeInterval[] = [];
+    const blocks = busy.slots;
+    for (const free of this.slots) {
+      let cursor = free.start;
+      for (const b of blocks) {
+        if (b.end <= cursor) continue;
+        if (b.start >= free.end) break;
+        if (b.start > cursor) result.push({ start: cursor, end: b.start });
+        if (b.end > cursor) cursor = b.end;
+        if (cursor >= free.end) break;
+      }
+      if (cursor < free.end) result.push({ start: cursor, end: free.end });
+    }
+    return result;
+  }
+
   private static normalise(slots: TimeInterval[]): TimeInterval[] {
     for (const { start, end } of slots) {
       if (start >= end) {

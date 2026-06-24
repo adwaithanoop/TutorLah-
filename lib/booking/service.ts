@@ -1,41 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import { BookingEscrow, type EscrowState } from "./escrow";
-import { FixedPricing } from "@/lib/pricing/pricing";
-import type { CreateBooking, BookingEvent } from "@/lib/validation/booking";
+import type { BookingEvent } from "@/lib/validation/booking";
 
 type Admin = SupabaseClient<Database>;
 export type BookingRow = Database["public"]["Tables"]["bookings"]["Row"];
-
-const MS_PER_HOUR = 60 * 60 * 1000;
-
-// Prices a session at the tutor's published hourly rate. The rate is supplied by the
-// caller from the tutor's profile, never from the student's request.
-export function quoteFixed(ratePerHour: number, startIso: string, endIso: string): number {
-  const hours = (Date.parse(endIso) - Date.parse(startIso)) / MS_PER_HOUR;
-  return new FixedPricing(ratePerHour, hours).quote();
-}
-
-// Creates the booking and holds the escrow in one atomic step. A booking is never
-// persisted unless the student's wallet can cover it, so paying is what confirms it.
-export async function bookAndPay(
-  admin: Admin,
-  studentId: string,
-  input: CreateBooking,
-  amount: number,
-): Promise<BookingRow> {
-  const { data, error } = await admin.rpc("book_and_pay", {
-    p_student: studentId,
-    p_tutor: input.tutor_id,
-    p_module: input.module_code,
-    p_start: input.scheduled_start,
-    p_end: input.scheduled_end,
-    p_price_type: "fixed",
-    p_amount: amount,
-  });
-  if (error || !data) throw new Error(error?.message ?? "Could not book session");
-  return data;
-}
 
 const MONEY_EVENTS = {
   pay: "pay_booking",
