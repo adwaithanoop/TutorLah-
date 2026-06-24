@@ -23,21 +23,21 @@ const features: Feature[] = [
   {
     title: "SOS Instant Bidding",
     description:
-      "Stuck at 11 PM? Post an SOS request with your module and problem. Active tutors receive it in real-time and submit competing bids. You pick the best offer.",
+      "Stuck at 11 PM? Post an SOS request with your module and problem. Active tutors will state their offers, you pick your favourite.",
     highlight: false,
     span: "lg:col-span-2",
   },
   {
     title: "Group Session Seminars",
     description:
-      "Tutors host revision seminars where per-student price drops as more join. Or post a group request and let tutors bid competitively to win the slot.",
+      "Tutors host revision seminars. Or post a group request and let tutors bid for you.",
     highlight: false,
     span: "lg:col-span-4",
   },
   {
     title: "Academic Passport",
     description:
-      "Every session generates a structured report. Reports aggregate into a persistent Academic Passport, so future tutors see exactly where you've struggled and can skip the diagnostic phase.",
+      "Your learnnig progress is updated by each tutor onto your Academic Passport after every session, allowing future tutors to continue where your previous tutor left off should you choose to find a different tutor.",
     highlight: false,
     span: "lg:col-span-3",
   },

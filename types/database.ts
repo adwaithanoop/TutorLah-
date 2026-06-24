@@ -102,6 +102,141 @@ export type Database = {
           },
         ]
       }
+      availability_blocks: {
+        Row: {
+          created_at: string
+          end_minute: number
+          id: string
+          profile_id: string
+          start_minute: number
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_minute: number
+          id?: string
+          profile_id: string
+          start_minute: number
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_minute?: number
+          id?: string
+          profile_id?: string
+          start_minute?: number
+          weekday?: number
+        }
+        Relationships: []
+      }
+      booking_requests: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          module_code: string
+          resolved_at: string | null
+          scheduled_end: string
+          scheduled_start: string
+          status: Database["public"]["Enums"]["booking_request_status"]
+          student_id: string
+          tutor_id: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          module_code: string
+          resolved_at?: string | null
+          scheduled_end: string
+          scheduled_start: string
+          status?: Database["public"]["Enums"]["booking_request_status"]
+          student_id: string
+          tutor_id: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          module_code?: string
+          resolved_at?: string | null
+          scheduled_end?: string
+          scheduled_start?: string
+          status?: Database["public"]["Enums"]["booking_request_status"]
+          student_id?: string
+          tutor_id?: string
+        }
+        Relationships: []
+      }
+      counter_offers: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          module_code: string
+          request_id: string
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["counter_offer_status"]
+          student_id: string
+          tutor_id: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          module_code: string
+          request_id: string
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["counter_offer_status"]
+          student_id: string
+          tutor_id: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          module_code?: string
+          request_id?: string
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["counter_offer_status"]
+          student_id?: string
+          tutor_id?: string
+        }
+        Relationships: []
+      }
+      counter_offer_slots: {
+        Row: {
+          id: string
+          offer_id: string
+          scheduled_end: string
+          scheduled_start: string
+        }
+        Insert: {
+          id?: string
+          offer_id: string
+          scheduled_end: string
+          scheduled_start: string
+        }
+        Update: {
+          id?: string
+          offer_id?: string
+          scheduled_end?: string
+          scheduled_start?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           amount: number
@@ -843,6 +978,46 @@ export type Database = {
       }
     }
     Functions: {
+      accept_booking_request: {
+        Args: { p_request: string; p_tutor: string }
+        Returns: Database["public"]["Tables"]["bookings"]["Row"]
+      }
+      accept_counter_offer: {
+        Args: { p_end: string; p_offer: string; p_start: string; p_student: string }
+        Returns: Database["public"]["Tables"]["bookings"]["Row"]
+      }
+      cancel_booking_request: {
+        Args: { p_request: string; p_student: string }
+        Returns: Database["public"]["Tables"]["booking_requests"]["Row"]
+      }
+      counter_propose: {
+        Args: { p_request: string; p_slots: Json; p_tutor: string }
+        Returns: Database["public"]["Tables"]["counter_offers"]["Row"]
+      }
+      decline_booking_request: {
+        Args: { p_request: string; p_tutor: string }
+        Returns: Database["public"]["Tables"]["booking_requests"]["Row"]
+      }
+      expire_stale_requests: { Args: never; Returns: number }
+      submit_session_report: {
+        Args: {
+          p_booking: string
+          p_misconceptions: string
+          p_summary: string
+          p_tutor: string
+        }
+        Returns: Database["public"]["Tables"]["session_reports"]["Row"]
+      }
+      request_booking: {
+        Args: {
+          p_end: string
+          p_module: string
+          p_start: string
+          p_student: string
+          p_tutor: string
+        }
+        Returns: Database["public"]["Tables"]["booking_requests"]["Row"]
+      }
       accept_sos_bid: {
         Args: { p_bid: string; p_request: string }
         Returns: string
@@ -887,6 +1062,15 @@ export type Database = {
       }
     }
     Enums: {
+      booking_request_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "cancelled"
+        | "expired"
+        | "superseded"
+        | "countered"
+      counter_offer_status: "pending" | "accepted" | "expired" | "cancelled"
       bid_status: "pending" | "accepted" | "rejected"
       escrow_state:
         | "pending_payment"
@@ -1032,6 +1216,16 @@ export const Constants = {
   },
   public: {
     Enums: {
+      booking_request_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "cancelled",
+        "expired",
+        "superseded",
+        "countered",
+      ],
+      counter_offer_status: ["pending", "accepted", "expired", "cancelled"],
       bid_status: ["pending", "accepted", "rejected"],
       escrow_state: [
         "pending_payment",
