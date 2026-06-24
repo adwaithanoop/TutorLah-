@@ -2,7 +2,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/user";
 import MessageThread, { type ChatMessage } from "@/app/components/chat/MessageThread";
-import ProposeInChat from "@/app/components/chat/ProposeInChat";
 
 export default async function ThreadPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
@@ -27,7 +26,6 @@ export default async function ThreadPage({ params }: { params: Promise<{ userId:
       </Link>
       <h1 className="text-2xl font-bold text-gray-900">{other?.full_name ?? "Conversation"}</h1>
       <MessageThread myId={user!.id} otherId={userId} initial={(messages as ChatMessage[]) ?? []} />
-      <ProposeInChat otherId={userId} />
     </main>
   );
 }
