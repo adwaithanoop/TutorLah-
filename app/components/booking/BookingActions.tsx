@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { formatSgtDateTime } from "@/lib/scheduling/display";
 
 type Event = "pay" | "complete" | "cancel" | "refund";
 
@@ -12,17 +13,29 @@ export default function BookingActions({
   reportSubmitted,
   amount,
   role,
+  scheduledEnd,
 }: {
   bookingId: string;
   escrowState: string;
   reportSubmitted: boolean;
   amount: number;
   role: "student" | "tutor";
+  scheduledEnd: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [needsTopUp, setNeedsTopUp] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+
+  // The server is the authority on whether the session has ended; this only governs the
+  // button's look and ticks so it unlocks the moment the session is over.
+  const sessionEnded = now >= Date.parse(scheduledEnd);
+  useEffect(() => {
+    if (sessionEnded) return;
+    const timer = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(timer);
+  }, [sessionEnded]);
 
   async function fire(event: Event) {
     setBusy(true);
@@ -46,20 +59,29 @@ export default function BookingActions({
     router.refresh();
   }
 
-  const actions: Array<{ event: Event; label: string; primary?: boolean }> = [];
+  const actions: Array<{ event: Event; label: string; primary?: boolean; locked?: boolean }> = [];
   const showReportLink = escrowState === "held" && role === "tutor" && !reportSubmitted;
   if (escrowState === "pending_payment" && role === "student") {
     actions.push({ event: "pay", label: "Pay now", primary: true }, { event: "cancel", label: "Cancel" });
   }
   if (escrowState === "held") {
     if (role === "tutor") {
-      actions.push({ event: "complete", label: "Mark complete", primary: reportSubmitted });
+      // Completing releases payment, so it stays locked until the session has actually
+      // ended; the server enforces the same against its own clock.
+      actions.push({
+        event: "complete",
+        label: sessionEnded ? "Mark complete" : "Mark complete",
+        primary: reportSubmitted && sessionEnded,
+        locked: !sessionEnded,
+      });
     }
     actions.push({ event: "refund", label: "Request refund" });
   }
 
   const showReviewLink = escrowState === "released" && role === "student";
   if (actions.length === 0 && !showReportLink && !showReviewLink) return null;
+
+  const completeLocked = role === "tutor" && escrowState === "held" && !sessionEnded;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -83,8 +105,9 @@ export default function BookingActions({
         <button
           key={a.event}
           onClick={() => fire(a.event)}
-          disabled={busy}
-          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
+          disabled={busy || a.locked}
+          title={a.locked ? "Available after the session ends" : undefined}
+          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
             a.primary
               ? "bg-indigo-600 text-white hover:bg-indigo-500"
               : "border border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -93,6 +116,9 @@ export default function BookingActions({
           {a.label}
         </button>
       ))}
+      {completeLocked && (
+        <span className="text-xs text-gray-400">Unlocks when the session ends ({formatSgtDateTime(scheduledEnd)})</span>
+      )}
       {needsTopUp && (
         <Link
           href={`/wallet?need=${amount}`}

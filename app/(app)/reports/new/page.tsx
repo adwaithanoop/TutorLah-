@@ -15,7 +15,7 @@ export default async function NewReportPage({ searchParams }: { searchParams: Se
   const { data: booking } = bookingId
     ? await supabase
         .from("bookings")
-        .select("id, module_code, student:profiles!bookings_student_id_fkey(full_name)")
+        .select("id, module_code, scheduled_end, student:profiles!bookings_student_id_fkey(full_name)")
         .eq("id", bookingId)
         .maybeSingle()
     : { data: null };
@@ -43,7 +43,7 @@ export default async function NewReportPage({ searchParams }: { searchParams: Se
         <span className="font-mono font-semibold text-indigo-600">{booking.module_code}</span>
         {student?.full_name && ` | ${student.full_name}`} and a report is required before releasing payment.
       </p>
-      <ReportForm bookingId={booking.id} />
+      <ReportForm bookingId={booking.id} scheduledEnd={booking.scheduled_end} />
     </main>
   );
 }

@@ -10,17 +10,27 @@ wallet, and book a session whose payment is held until the session is complete.
 - **Verified tutors.** Tutors upload their transcript to get a verified badge for a
   module. Students search by module code from the dashboard.
 - **Wallet and held payments.** Students top up a wallet with card or PayNow through
-  Stripe, then pay from it to confirm a booking. The money is held until the session is
-  over and the tutor submits a report, so students are not left out of pocket.
+  Stripe. The wallet is charged only when a tutor accepts a request, and the money is held
+  until the session is over and the tutor submits a report, so students are not left out of
+  pocket.
 - **SOS requests.** Post an urgent request and active tutors bid on it in real time. You
   pick the offer you want.
 - **Reliability score.** Tutors are ranked by a score built from five things: ratings,
   completion rate, verification, grade, and how recently they took the module. It's
   computed on the server.
 - **Group sessions.** The price per student drops as more people join.
-- **Academic Passport.** Each session ends with a short report so the next tutor knows
-  where the student is stuck.
-- **Scheduling.** Book from the overlap of both people's free slots.
+- **Academic Passport.** Each session ends with a short report, which a tutor can only
+  submit once the session is actually over, so the next tutor knows where the student is
+  stuck.
+- **Weekly availability.** Tutors publish recurring weekly slots, one to two hours each,
+  and those are the exact times students can book. They can update them any time without
+  touching sessions already booked.
+- **Request marketplace.** Students pick a session length and the times that suit them and
+  send requests to as many tutors as they like, even across modules. The first tutor to
+  accept gets the session and only then is the student charged; every other request for the
+  same module, and anything clashing with the booked time, cancels itself. Tutors can
+  accept, decline, or counter with their own free times, and a request expires if it is not
+  answered within two hours.
 
 ## Tech stack
 

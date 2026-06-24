@@ -34,7 +34,23 @@ export default async function BookingsPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="mb-6 text-3xl font-bold text-gray-900">Your bookings</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl font-bold text-gray-900">Your bookings</h1>
+        <div className="flex gap-2">
+          <Link
+            href="/bookings/requests"
+            className="rounded-full border border-indigo-200 px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+          >
+            Your requests
+          </Link>
+          <Link
+            href="/bookings/inbox"
+            className="rounded-full border border-indigo-200 px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+          >
+            Incoming requests
+          </Link>
+        </div>
+      </div>
 
       {bookings.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center text-gray-500">
@@ -71,6 +87,7 @@ export default async function BookingsPage() {
                     reportSubmitted={b.report_submitted}
                     amount={Number(b.amount)}
                     role={role}
+                    scheduledEnd={b.scheduled_end}
                   />
                   <Link
                     href={`/messages/${role === "tutor" ? b.student_id : b.tutor_id}`}

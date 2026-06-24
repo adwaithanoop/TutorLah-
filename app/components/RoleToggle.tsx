@@ -14,7 +14,7 @@ const studentSteps: Step[] = [
     number: "01",
     title: "Search by Module Code",
     description:
-      "Enter any NUS module code, like CS2040S, MA1521, or ST2334, and see a ranked list of verified tutors who have actually taken and aced that course.",
+      "Enter any NUS module code, and see a ranked list of verified tutors who have actually taken and done well for that course.",
   },
   {
     number: "02",

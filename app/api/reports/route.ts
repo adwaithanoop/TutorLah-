@@ -3,6 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createReportSchema } from "@/lib/validation/report";
 
+// Maps the definer function's errors onto sensible HTTP statuses.
+function statusFor(message: string): number {
+  if (/not found/i.test(message)) return 404;
+  if (/only the tutor/i.test(message)) return 403;
+  if (/already submitted|once the session|is paid/i.test(message)) return 409;
+  return 400;
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const {
@@ -22,38 +30,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  const { data: booking } = await supabase
-    .from("bookings")
-    .select("id, student_id, tutor_id, module_code, escrow_state")
-    .eq("id", parsed.data.booking_id)
-    .maybeSingle();
-  if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
-  if (booking.tutor_id !== user.id) {
-    return NextResponse.json({ error: "Only the tutor can submit the report" }, { status: 403 });
-  }
-  if (booking.escrow_state !== "held") {
-    return NextResponse.json({ error: "Reports can only be submitted once the session is paid" }, { status: 409 });
-  }
-
-  const { data: report, error } = await supabase
-    .from("session_reports")
-    .insert({
-      booking_id: booking.id,
-      student_id: booking.student_id,
-      tutor_id: booking.tutor_id,
-      module_code: booking.module_code,
-      misconceptions: parsed.data.misconceptions,
-      summary: parsed.data.summary,
-    })
-    .select()
-    .single();
+  // The function verifies tutor ownership, the paid state, and that the session has
+  // actually ended (by the database clock) before writing anything. The caller's id is
+  // passed in so a request can never act on someone else's booking.
+  const { data: report, error } = await createAdminClient().rpc("submit_session_report", {
+    p_tutor: user.id,
+    p_booking: parsed.data.booking_id,
+    p_misconceptions: parsed.data.misconceptions,
+    p_summary: parsed.data.summary,
+  });
 
   if (error) {
-    if (error.code === "23505") return NextResponse.json({ error: "Report already submitted" }, { status: 409 });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error.message ?? "Could not submit report";
+    return NextResponse.json({ error: message }, { status: statusFor(message) });
   }
-
-  await createAdminClient().from("bookings").update({ report_submitted: true }).eq("id", booking.id);
-
   return NextResponse.json({ report });
 }
