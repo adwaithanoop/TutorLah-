@@ -12,6 +12,7 @@ interface Row {
   year: string | null;
   faculty: string | null;
   avatar_color: string;
+  avatar_path: string | null;
   rate_per_hour: number;
   is_active: boolean;
   avg_rating: number;
@@ -29,6 +30,7 @@ const row = (over: Partial<Row> = {}): Row => ({
   year: "Year 2",
   faculty: "Computing",
   avatar_color: "bg-indigo-500",
+  avatar_path: null,
   rate_per_hour: 30,
   is_active: true,
   avg_rating: 4.5,

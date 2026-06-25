@@ -1,4 +1,5 @@
 import type { RankedTutor } from "@/lib/tutors/search";
+import Avatar from "@/app/components/Avatar";
 
 function scoreStyle(score: number): string {
   if (score >= 90) return "text-emerald-600 bg-emerald-50 border-emerald-200";
@@ -11,11 +12,12 @@ export default function TutorResultCard({ tutor }: { tutor: RankedTutor }) {
     <div className="flex flex-col rounded-xl bg-white shadow-soft p-6">
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div
-            className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${tutor.avatarColor} shadow-md`}
-          >
-            <span className="font-bold text-white">{tutor.initials}</span>
-          </div>
+          <Avatar
+            src={tutor.avatarUrl}
+            name={tutor.name}
+            colorClass={tutor.avatarColor}
+            className="h-12 w-12 flex-shrink-0 shadow-md"
+          />
           <div>
             <div className="flex items-center gap-1.5">
               <h3 className="font-bold text-gray-900">{tutor.name}</h3>

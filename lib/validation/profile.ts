@@ -37,5 +37,9 @@ export const setTranscriptSchema = z.object({
   transcript_path: z.string().min(1),
 });
 
+export const setAvatarSchema = z.object({
+  avatar_path: z.string().min(1).max(255).nullable(),
+});
+
 export type ProfileUpdate = z.infer<typeof profileUpdateSchema>;
 export type AddModule = z.infer<typeof addModuleSchema>;

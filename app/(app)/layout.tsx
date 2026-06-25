@@ -13,6 +13,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/user";
 import { getBalance } from "@/lib/wallet/service";
+import { signedAvatarUrl } from "@/lib/avatars";
 import ModeMenu from "@/app/components/ModeMenu";
 import SiteBackground from "@/app/components/SiteBackground";
 import { getMode } from "./mode";
@@ -32,7 +33,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [mode, user] = await Promise.all([getMode(), getCurrentUser(supabase)]);
 
   const [{ data: profile }, { data: adminRow }, balance] = await Promise.all([
-    supabase.from("profiles").select("full_name, avatar_color").eq("id", user!.id).maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("full_name, avatar_color, avatar_path")
+      .eq("id", user!.id)
+      .maybeSingle(),
     supabase.from("admins").select("id").eq("id", user!.id).maybeSingle(),
     getBalance(supabase, user!.id),
   ]);
@@ -40,6 +45,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const name = profile?.full_name?.trim() || user?.email?.split("@")[0] || "You";
   const avatarColor = profile?.avatar_color ?? "bg-indigo-500";
+  const avatarSrc = await signedAvatarUrl(supabase, profile?.avatar_path);
   const home = mode === "tutor" ? "/dashboard/tutor" : "/dashboard";
 
   const homeNav =
@@ -85,7 +91,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </Link>
             )}
           </nav>
-          <ModeMenu name={name} mode={mode} avatarColor={avatarColor} balance={balance} />
+          <ModeMenu
+            name={name}
+            mode={mode}
+            avatarColor={avatarColor}
+            avatarSrc={avatarSrc}
+            balance={balance}
+          />
         </div>
       </header>
       {children}
