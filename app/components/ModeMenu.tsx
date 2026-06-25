@@ -6,22 +6,19 @@ import { ArrowLeftRight, ChevronDown, GraduationCap, LogOut, UserRound, Wallet }
 import { switchMode } from "@/app/(app)/actions";
 import { signOut } from "@/app/auth/actions";
 import type { Mode } from "@/app/(app)/mode";
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "U";
-  return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
-}
+import Avatar from "@/app/components/Avatar";
 
 export default function ModeMenu({
   name,
   mode,
   avatarColor,
+  avatarSrc,
   balance,
 }: {
   name: string;
   mode: Mode;
   avatarColor: string;
+  avatarSrc: string | null;
   balance: number;
 }) {
   const [open, setOpen] = useState(false);
@@ -44,11 +41,13 @@ export default function ModeMenu({
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-indigo-50"
       >
-        <span
-          className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white ${avatarColor}`}
-        >
-          {initials(name)}
-        </span>
+        <Avatar
+          src={avatarSrc}
+          name={name}
+          colorClass={avatarColor}
+          className="h-8 w-8"
+          textClass="text-xs"
+        />
         <span className="hidden text-left leading-tight sm:block">
           <span className="block text-sm font-semibold text-indigo-950">{name}</span>
           <span className="block text-xs capitalize text-indigo-900/50">{mode} mode</span>
@@ -59,11 +58,13 @@ export default function ModeMenu({
       {open && (
         <div className="absolute right-0 mt-2 w-60 overflow-hidden rounded-xl border border-indigo-100 bg-white shadow-soft-lg">
           <div className="flex items-center gap-3 border-b border-indigo-100/70 px-4 py-3">
-            <span
-              className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white ${avatarColor}`}
-            >
-              {initials(name)}
-            </span>
+            <Avatar
+              src={avatarSrc}
+              name={name}
+              colorClass={avatarColor}
+              className="h-9 w-9"
+              textClass="text-sm"
+            />
             <div className="leading-tight">
               <p className="text-sm font-semibold text-indigo-950">{name}</p>
               <p className="text-xs capitalize text-indigo-900/50">{mode} mode</p>

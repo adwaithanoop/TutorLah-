@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import { ReliabilityScore, type Grade } from "@/lib/scoring/reliability";
+import { signedAvatarUrls } from "@/lib/avatars";
 
 export interface RankedTutor {
   id: string;
@@ -15,6 +16,7 @@ export interface RankedTutor {
   isVerified: boolean;
   isActive: boolean;
   avatarColor: string;
+  avatarUrl: string | null;
   reviewCount: number;
   sessionsCompleted: number;
 }
@@ -28,6 +30,7 @@ interface VerifiedModuleRow {
   year: string | null;
   faculty: string | null;
   avatar_color: string;
+  avatar_path: string | null;
   rate_per_hour: number;
   is_active: boolean;
   avg_rating: number;
@@ -37,7 +40,7 @@ interface VerifiedModuleRow {
 }
 
 const SELECT =
-  "tutor_id, grade, completed_at, is_verified, full_name, year, faculty, avatar_color, rate_per_hour, is_active, avg_rating, rating_count, sessions_completed, sessions_booked";
+  "tutor_id, grade, completed_at, is_verified, full_name, year, faculty, avatar_color, avatar_path, rate_per_hour, is_active, avg_rating, rating_count, sessions_completed, sessions_booked";
 
 function initials(name: string): string {
   return name
@@ -61,7 +64,10 @@ export async function searchTutors(
 
   if (error) throw error;
 
-  return (data ?? [])
+  const rows = data ?? [];
+  const avatarUrls = await signedAvatarUrls(supabase, rows.map((row) => row.avatar_path));
+
+  return rows
     .map((row) => {
       const reliabilityScore = new ReliabilityScore(
         {
@@ -89,6 +95,7 @@ export async function searchTutors(
         isVerified: row.is_verified,
         isActive: row.is_active,
         avatarColor: row.avatar_color,
+        avatarUrl: row.avatar_path ? avatarUrls[row.avatar_path] ?? null : null,
         reviewCount: row.rating_count,
         sessionsCompleted: row.sessions_completed,
       };

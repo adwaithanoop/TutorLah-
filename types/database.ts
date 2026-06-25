@@ -450,6 +450,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_color: string
+          avatar_path: string | null
           avg_rating: number
           created_at: string
           faculty: string | null
@@ -466,6 +467,7 @@ export type Database = {
         }
         Insert: {
           avatar_color?: string
+          avatar_path?: string | null
           avg_rating?: number
           created_at?: string
           faculty?: string | null
@@ -482,6 +484,7 @@ export type Database = {
         }
         Update: {
           avatar_color?: string
+          avatar_path?: string | null
           avg_rating?: number
           created_at?: string
           faculty?: string | null
@@ -909,6 +912,7 @@ export type Database = {
       verified_tutor_modules: {
         Row: {
           avatar_color: string | null
+          avatar_path: string | null
           avg_rating: number | null
           completed_at: string | null
           faculty: string | null
