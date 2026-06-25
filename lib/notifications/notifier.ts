@@ -1,18 +1,71 @@
-const TELEGRAM_API = "https://api.telegram.org";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { CandidateTutor, selectSosRecipients } from "./recipients";
+import { formatSosMessage, formatSosTakenMessage } from "./sos-message";
+import { sendTelegramMessage } from "./telegram";
 
-export async function notifyNewSos(moduleCode: string, description: string): Promise<void> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) return;
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+export interface SosNotification {
+  module_code: string;
+  description: string;
+  student_id: string;
+}
+
+async function loadModuleTutorCandidates(admin: AdminClient, moduleCode: string): Promise<CandidateTutor[]> {
+  const { data: verified } = await admin
+    .from("verified_tutor_modules")
+    .select("tutor_id")
+    .eq("module_code", moduleCode);
+
+  const tutorIds = [
+    ...new Set((verified ?? []).map((row) => row.tutor_id).filter((id): id is string => id !== null)),
+  ];
+  if (tutorIds.length === 0) return [];
+
+  const { data: accounts } = await admin
+    .from("telegram_accounts")
+    .select("user_id, chat_id")
+    .in("user_id", tutorIds);
+
+  return (accounts ?? []).map((account) => ({ tutorId: account.user_id, chatId: account.chat_id }));
+}
+
+export async function notifyNewSos(sos: SosNotification): Promise<void> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) return;
 
   try {
-    await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: `🚨 New SOS for ${moduleCode}\n\n${description}\n\nOpen TutorLah to bid.`,
-      }),
+    const admin = createAdminClient();
+    const candidates = await loadModuleTutorCandidates(admin, sos.module_code);
+    const chatIds = selectSosRecipients(candidates, [sos.student_id]);
+    if (chatIds.length === 0) return;
+
+    const { text, link } = formatSosMessage({
+      moduleCode: sos.module_code,
+      description: sos.description,
+      siteUrl,
     });
+    await Promise.allSettled(
+      chatIds.map((chatId) => sendTelegramMessage(chatId, text, { button: { text: "Bid on TutorLah", url: link } })),
+    );
+  } catch {}
+}
+
+export async function notifySosTaken(bookingId: string): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("student_id, tutor_id, module_code")
+      .eq("id", bookingId)
+      .single();
+    if (!booking) return;
+
+    const candidates = await loadModuleTutorCandidates(admin, booking.module_code);
+    const chatIds = selectSosRecipients(candidates, [booking.student_id, booking.tutor_id]);
+    if (chatIds.length === 0) return;
+
+    const { text } = formatSosTakenMessage({ moduleCode: booking.module_code });
+    await Promise.allSettled(chatIds.map((chatId) => sendTelegramMessage(chatId, text)));
   } catch {}
 }
