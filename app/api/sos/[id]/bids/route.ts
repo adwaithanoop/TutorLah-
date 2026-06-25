@@ -33,6 +33,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: "You can't bid on your own request" }, { status: 400 });
   }
 
+  const { data: me } = await supabase
+    .from("profiles")
+    .select("is_active, receiving_sos")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!me?.is_active || !me?.receiving_sos) {
+    return NextResponse.json(
+      { error: "Turn on Receiving SOS from your dashboard to bid." },
+      { status: 403 },
+    );
+  }
+
   const { data: verified } = await supabase
     .from("tutor_modules")
     .select("id")

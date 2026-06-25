@@ -22,10 +22,19 @@ async function loadModuleTutorCandidates(admin: AdminClient, moduleCode: string)
   ];
   if (tutorIds.length === 0) return [];
 
+  const { data: available } = await admin
+    .from("profiles")
+    .select("id")
+    .in("id", tutorIds)
+    .eq("is_active", true)
+    .eq("receiving_sos", true);
+  const availableIds = (available ?? []).map((row) => row.id);
+  if (availableIds.length === 0) return [];
+
   const { data: accounts } = await admin
     .from("telegram_accounts")
     .select("user_id, chat_id")
-    .in("user_id", tutorIds);
+    .in("user_id", availableIds);
 
   return (accounts ?? []).map((account) => ({ tutorId: account.user_id, chatId: account.chat_id }));
 }

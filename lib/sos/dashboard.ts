@@ -32,6 +32,7 @@ export interface SosDashboard {
   myRequests: MyRequest[];
   openForMe: OpenRequest[];
   myVerifiedModules: string[];
+  receivingSos: boolean;
 }
 
 interface RawBid {
@@ -55,12 +56,12 @@ export async function loadSosDashboard(
   userId: string,
   now: Date = new Date(),
 ): Promise<SosDashboard> {
-  const { data: vmods } = await supabase
-    .from("tutor_modules")
-    .select("module_code")
-    .eq("tutor_id", userId)
-    .eq("is_verified", true);
+  const [{ data: vmods }, { data: prof }] = await Promise.all([
+    supabase.from("tutor_modules").select("module_code").eq("tutor_id", userId).eq("is_verified", true),
+    supabase.from("profiles").select("is_active, receiving_sos").eq("id", userId).maybeSingle(),
+  ]);
   const myVerifiedModules = (vmods ?? []).map((m) => m.module_code);
+  const receivingSos = (prof?.is_active ?? false) && (prof?.receiving_sos ?? false);
 
   const { data: rawMine } = await supabase
     .from("sos_requests")
@@ -116,11 +117,11 @@ export async function loadSosDashboard(
   });
 
   const openForMe: OpenRequest[] =
-    myVerifiedModules.length === 0
+    !receivingSos || myVerifiedModules.length === 0
       ? []
       : await loadOpenForMe(supabase, userId, myVerifiedModules);
 
-  return { myRequests, openForMe, myVerifiedModules };
+  return { myRequests, openForMe, myVerifiedModules, receivingSos };
 }
 
 async function loadBidderModules(supabase: Client, mine: RawRequest[]) {
