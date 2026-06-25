@@ -8,7 +8,7 @@ const SGT_OFFSET_MS = SGT_OFFSET_MIN * 60_000;
 const DAY_MS = 86_400_000;
 const MIN_MS = 60_000;
 
-export const ALLOWED_DURATIONS_MIN = [60, 90, 120] as const;
+export const ALLOWED_DURATIONS_MIN = [60, 90, 120, 150, 180] as const;
 export type DurationMin = (typeof ALLOWED_DURATIONS_MIN)[number];
 export const SLOT_GRID_MIN = 30;
 export const MAX_WEEKDAY_MINUTE = 24 * 60;

@@ -22,7 +22,7 @@ interface Picked {
   price: number;
 }
 
-const DURATIONS = [60, 90, 120] as const;
+const DURATIONS = [60, 90, 120, 150, 180] as const;
 
 function priceFor(rate: number, durationMin: number): number {
   return Math.round((rate * durationMin) / 60 * 100) / 100;
