@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { acceptSchema } from "@/lib/validation/sos";
+import { notifySosTaken } from "@/lib/notifications/notifier";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,5 +29,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const conflict = error.code === "23505" || /no longer open|not your request/i.test(error.message);
     return NextResponse.json({ error: error.message }, { status: conflict ? 409 : 500 });
   }
+  if (data) await notifySosTaken(data);
   return NextResponse.json({ booking_id: data });
 }

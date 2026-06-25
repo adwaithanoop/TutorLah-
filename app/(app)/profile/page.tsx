@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/user";
 import { signedAvatarUrl } from "@/lib/avatars";
 import ProfileForm, { type ProfileFields } from "@/app/components/profile/ProfileForm";
 import AvatarUpload from "@/app/components/profile/AvatarUpload";
+import ConnectTelegram from "@/app/components/profile/ConnectTelegram";
 
 const DEFAULTS: ProfileFields = {
   full_name: "",
@@ -36,6 +37,12 @@ export default async function ProfilePage() {
 
   const avatarSrc = await signedAvatarUrl(supabase, profile?.avatar_path);
 
+  const { data: telegram } = await supabase
+    .from("telegram_accounts")
+    .select("username")
+    .eq("user_id", user!.id)
+    .maybeSingle();
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="mb-1 text-3xl font-bold text-gray-900">Your profile</h1>
@@ -49,6 +56,7 @@ export default async function ProfilePage() {
           initialPath={profile?.avatar_path ?? null}
           initialUrl={avatarSrc}
         />
+        <ConnectTelegram connected={!!telegram} username={telegram?.username ?? null} />
         <ProfileForm initial={fields} />
       </div>
     </main>

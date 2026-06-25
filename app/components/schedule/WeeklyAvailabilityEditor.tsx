@@ -19,7 +19,7 @@ export interface WeeklyBlock {
 }
 
 const MIN_BLOCK = 60;
-const MAX_BLOCK = 120;
+const MAX_BLOCK = 180;
 const DAY_END = 1440;
 
 // A block must fit a single session, so the latest it can start is 1 hour before midnight.
@@ -35,10 +35,10 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
 
   const startMarks = useMemo(() => gridMarks().filter((m) => m.value <= LATEST_START), []);
 
-  // The end can only be 1, 1.5 or 2 hours after the start, so an out-of-range block can
-  // never be entered. Options that would run past midnight are dropped.
+  // The end can only be 1 to 3 hours after the start in half-hour steps, so an out-of-range
+  // block can never be entered. Options that would run past midnight are dropped.
   const endChoices = useMemo(
-    () => [MIN_BLOCK, 90, MAX_BLOCK].map((d) => startMinute + d).filter((v) => v <= DAY_END),
+    () => [60, 90, 120, 150, 180].map((d) => startMinute + d).filter((v) => v <= DAY_END),
     [startMinute],
   );
 
@@ -64,7 +64,7 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
     setError("");
     const duration = endMinute - startMinute;
     if (duration < MIN_BLOCK || duration > MAX_BLOCK) {
-      setError("A block must be between 1 and 2 hours long");
+      setError("A block must be between 1 and 3 hours long");
       return;
     }
     setBusy(true);
@@ -91,7 +91,7 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
       <div>
         <h2 className="font-bold text-gray-900">Weekly booking slots</h2>
         <p className="text-sm text-gray-500">
-          These are the exact times students can book you. Add one block per window, each 1 to 2
+          These are the exact times students can book you. Add one block per window, each 1 to 3
           hours long; students then choose a length and a start time inside your blocks. Free for a
           longer stretch? Add back-to-back blocks (for Monday 4 to 8 PM, add 4:00 to 6:00 PM and 6:00
           to 8:00 PM) and they join into one bookable window. Editing here never changes sessions

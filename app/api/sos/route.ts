@@ -30,6 +30,10 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  await notifyNewSos(parsed.data.module_code, parsed.data.description);
+  await notifyNewSos({
+    module_code: data.module_code,
+    description: data.description,
+    student_id: data.student_id,
+  });
   return NextResponse.json({ request: data });
 }

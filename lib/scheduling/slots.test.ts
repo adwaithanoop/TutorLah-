@@ -106,6 +106,15 @@ describe("slotsForDuration and bookableDays", () => {
     expect(bookableDays(windows, 120, sgt(2026, 6, 15, 0))).toEqual([]);
   });
 
+  test("fits a three hour session in a three hour window but not a shorter one", () => {
+    const threeHour: TimeInterval[] = [{ start: sgt(2026, 6, 15, 16), end: sgt(2026, 6, 15, 19) }];
+    expect(slotsForDuration(threeHour, 180, sgt(2026, 6, 15, 0))).toEqual([
+      { start: sgt(2026, 6, 15, 16).toISOString(), end: sgt(2026, 6, 15, 19).toISOString() },
+    ]);
+    const twoAndHalf: TimeInterval[] = [{ start: sgt(2026, 6, 15, 16), end: sgt(2026, 6, 15, 18, 30) }];
+    expect(bookableDays(twoAndHalf, 180, sgt(2026, 6, 15, 0))).toEqual([]);
+  });
+
   test("groups slots onto their Singapore calendar date", () => {
     expect(sgtDateKey(sgt(2026, 6, 15, 23))).toBe("2026-06-15");
     // 00:30 SGT on the 16th is 16:30 UTC on the 15th, but belongs to the 16th locally.
