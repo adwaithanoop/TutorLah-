@@ -17,9 +17,17 @@ export const profileUpdateSchema = z.object({
   faculty: z.string().trim().max(80).nullish(),
   year: z.string().trim().max(20).nullish(),
   rate_per_hour: z.number().min(0).max(1000),
-  is_active: z.boolean(),
   avatar_color: z.enum(AVATAR_COLORS),
 });
+
+export const availabilitySchema = z
+  .object({
+    is_active: z.boolean().optional(),
+    receiving_sos: z.boolean().optional(),
+  })
+  .refine((v) => v.is_active !== undefined || v.receiving_sos !== undefined, {
+    message: "Nothing to update",
+  });
 
 export const addModuleSchema = z.object({
   module_code: moduleCodeSchema,

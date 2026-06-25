@@ -8,7 +8,6 @@ export interface ProfileFields {
   faculty: string | null;
   year: string | null;
   rate_per_hour: number;
-  is_active: boolean;
   avatar_color: string;
 }
 
@@ -94,16 +93,6 @@ export default function ProfileForm({ initial }: { initial: ProfileFields }) {
           ))}
         </div>
       </div>
-
-      <label className="flex items-center gap-2 text-sm text-gray-700">
-        <input
-          type="checkbox"
-          checked={form.is_active}
-          onChange={(e) => set("is_active", e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300 text-indigo-600"
-        />
-        Available for sessions now
-      </label>
 
       {status === "error" && <p className="text-sm text-red-600">{error}</p>}
 

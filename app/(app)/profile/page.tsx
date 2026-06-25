@@ -10,7 +10,6 @@ const DEFAULTS: ProfileFields = {
   faculty: null,
   year: null,
   rate_per_hour: 0,
-  is_active: false,
   avatar_color: "bg-indigo-500",
 };
 
@@ -20,7 +19,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, faculty, year, rate_per_hour, is_active, avatar_color, avatar_path")
+    .select("full_name, faculty, year, rate_per_hour, avatar_color, avatar_path")
     .eq("id", user!.id)
     .maybeSingle();
 
@@ -30,7 +29,6 @@ export default async function ProfilePage() {
         faculty: profile.faculty,
         year: profile.year,
         rate_per_hour: profile.rate_per_hour,
-        is_active: profile.is_active,
         avatar_color: profile.avatar_color,
       }
     : DEFAULTS;
@@ -46,7 +44,7 @@ export default async function ProfilePage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="mb-1 text-3xl font-bold text-gray-900">Your profile</h1>
-      <p className="mb-8 text-gray-500">Manage your details, rate, and tutoring availability.</p>
+      <p className="mb-8 text-gray-500">Manage your details and rate.</p>
 
       <div className="space-y-6">
         <AvatarUpload
