@@ -731,6 +731,67 @@ export type Database = {
           },
         ]
       }
+      telegram_accounts: {
+        Row: {
+          chat_id: number
+          linked_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          chat_id: number
+          linked_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          chat_id?: number
+          linked_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telegram_link_tokens: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_link_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tutor_modules: {
         Row: {
           allow_resubmit: boolean
