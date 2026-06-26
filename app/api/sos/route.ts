@@ -24,7 +24,12 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase
     .from("sos_requests")
-    .insert({ student_id: user.id, module_code: parsed.data.module_code, description: parsed.data.description })
+    .insert({
+      student_id: user.id,
+      module_code: parsed.data.module_code,
+      description: parsed.data.description,
+      duration_minutes: parsed.data.duration_minutes,
+    })
     .select()
     .single();
 

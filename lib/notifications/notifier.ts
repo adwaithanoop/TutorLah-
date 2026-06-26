@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CandidateTutor, selectSosRecipients } from "./recipients";
-import { formatSosMessage, formatSosTakenMessage, formatNewBidMessage } from "./sos-message";
+import { formatSosMessage, formatSosTakenMessage, formatNewBidMessage, formatSosWonMessage } from "./sos-message";
 import { formatBookingResponseMessage, type BookingAction } from "./booking-message";
 import { sendTelegramMessage } from "./telegram";
 
@@ -92,7 +92,7 @@ async function lookupChatId(admin: AdminClient, userId: string): Promise<number 
 export interface NewBidNotification {
   studentId: string;
   moduleCode: string;
-  rate: number;
+  amount: number;
 }
 
 export async function notifyNewBid(bid: NewBidNotification): Promise<void> {
@@ -104,8 +104,33 @@ export async function notifyNewBid(bid: NewBidNotification): Promise<void> {
     const chatId = await lookupChatId(admin, bid.studentId);
     if (chatId === null) return;
 
-    const { text, link } = formatNewBidMessage({ moduleCode: bid.moduleCode, rate: bid.rate, siteUrl });
+    const { text, link } = formatNewBidMessage({ moduleCode: bid.moduleCode, amount: bid.amount, siteUrl });
     await sendTelegramMessage(chatId, text, { button: { text: "View bids", url: link } });
+  } catch {}
+}
+
+export async function notifySosWon(bookingId: string): Promise<void> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) return;
+
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("tutor_id, module_code, amount")
+      .eq("id", bookingId)
+      .single();
+    if (!booking) return;
+
+    const chatId = await lookupChatId(admin, booking.tutor_id);
+    if (chatId === null) return;
+
+    const { text, link } = formatSosWonMessage({
+      moduleCode: booking.module_code,
+      amount: Number(booking.amount),
+      siteUrl,
+    });
+    await sendTelegramMessage(chatId, text, { button: { text: "View booking", url: link } });
   } catch {}
 }
 

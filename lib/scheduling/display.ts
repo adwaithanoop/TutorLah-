@@ -21,12 +21,14 @@ export function gridMarks(): { value: number; label: string }[] {
 }
 
 export function minuteToLabel(min: number): string {
-  if (min >= 1440) return "12:00 AM";
-  const h = Math.floor(min / 60);
-  const m = min % 60;
+  const nextDay = min >= 1440;
+  const normalized = ((min % 1440) + 1440) % 1440;
+  const h = Math.floor(normalized / 60);
+  const m = normalized % 60;
   const period = h >= 12 ? "PM" : "AM";
   const hour = h % 12 === 0 ? 12 : h % 12;
-  return `${hour}:${String(m).padStart(2, "0")} ${period}`;
+  const label = `${hour}:${String(m).padStart(2, "0")} ${period}`;
+  return nextDay ? `${label} next day` : label;
 }
 
 export function formatSgtTime(iso: string): string {

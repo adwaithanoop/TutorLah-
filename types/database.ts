@@ -623,25 +623,25 @@ export type Database = {
       }
       sos_bids: {
         Row: {
+          amount: number
           created_at: string
           id: string
-          rate: number
           request_id: string
           status: Database["public"]["Enums"]["bid_status"]
           tutor_id: string
         }
         Insert: {
+          amount: number
           created_at?: string
           id?: string
-          rate: number
           request_id: string
           status?: Database["public"]["Enums"]["bid_status"]
           tutor_id: string
         }
         Update: {
+          amount?: number
           created_at?: string
           id?: string
-          rate?: number
           request_id?: string
           status?: Database["public"]["Enums"]["bid_status"]
           tutor_id?: string
@@ -667,6 +667,8 @@ export type Database = {
         Row: {
           created_at: string
           description: string
+          duration_minutes: number
+          expires_at: string
           id: string
           module_code: string
           status: Database["public"]["Enums"]["sos_status"]
@@ -675,6 +677,8 @@ export type Database = {
         Insert: {
           created_at?: string
           description: string
+          duration_minutes: number
+          expires_at?: string
           id?: string
           module_code: string
           status?: Database["public"]["Enums"]["sos_status"]
@@ -683,6 +687,8 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string
+          duration_minutes?: number
+          expires_at?: string
           id?: string
           module_code?: string
           status?: Database["public"]["Enums"]["sos_status"]
@@ -1118,7 +1124,7 @@ export type Database = {
         | "refunded"
       module_grade: "A+" | "A" | "A-" | "B+" | "B" | "B-" | "C+" | "C"
       price_type: "fixed" | "negotiable"
-      sos_status: "open" | "matched" | "cancelled"
+      sos_status: "open" | "matched" | "cancelled" | "expired"
       subject_level: "o_level" | "a_level" | "nus" | "ntu"
       topup_status: "pending" | "completed"
       verification_status: "pending" | "verified" | "rejected"
@@ -1274,7 +1280,7 @@ export const Constants = {
       ],
       module_grade: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C"],
       price_type: ["fixed", "negotiable"],
-      sos_status: ["open", "matched", "cancelled"],
+      sos_status: ["open", "matched", "cancelled", "expired"],
       subject_level: ["o_level", "a_level", "nus", "ntu"],
       verification_status: ["pending", "verified", "rejected"],
     },

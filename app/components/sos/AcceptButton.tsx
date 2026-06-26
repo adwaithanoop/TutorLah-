@@ -3,10 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function AcceptButton({ requestId, bidId }: { requestId: string; bidId: string }) {
+export default function AcceptButton({
+  requestId,
+  bidId,
+  amount,
+}: {
+  requestId: string;
+  bidId: string;
+  amount: number;
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const formattedAmount = amount.toFixed(2);
 
   async function accept() {
     setBusy(true);
@@ -31,7 +40,7 @@ export default function AcceptButton({ requestId, bidId }: { requestId: string; 
         disabled={busy}
         className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
       >
-        {busy ? "Accepting…" : "Accept"}
+        {busy ? "Accepting…" : `Accept (hold $${formattedAmount})`}
       </button>
       {error && <span className="text-xs text-red-600">{error}</span>}
     </div>

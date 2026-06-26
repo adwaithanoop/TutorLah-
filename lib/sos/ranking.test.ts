@@ -6,24 +6,24 @@ describe("rankBids", () => {
   });
 
   it("ranks a single bid", () => {
-    const result = rankBids([{ id: "a", rate: 40, reliabilityScore: 80 }]);
+    const result = rankBids([{ id: "a", amount: 40, reliabilityScore: 80 }]);
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("a");
     expect(result[0].value).toBeCloseTo(0.6 * 0.8 + 0.4 * 1, 10);
   });
 
-  it("ranks highest reliability and lowest price first", () => {
+  it("ranks highest reliability and lowest total first", () => {
     const result = rankBids([
-      { id: "a", rate: 60, reliabilityScore: 40 },
-      { id: "b", rate: 30, reliabilityScore: 95 },
+      { id: "a", amount: 60, reliabilityScore: 40 },
+      { id: "b", amount: 30, reliabilityScore: 95 },
     ]);
     expect(result.map((b) => b.id)).toEqual(["b", "a"]);
   });
 
   it("matches the worked numeric example", () => {
     const result = rankBids([
-      { id: "a", rate: 50, reliabilityScore: 90 },
-      { id: "b", rate: 30, reliabilityScore: 70 },
+      { id: "a", amount: 50, reliabilityScore: 90 },
+      { id: "b", amount: 30, reliabilityScore: 70 },
     ]);
     expect(result.map((b) => b.id)).toEqual(["b", "a"]);
     const a = result.find((b) => b.id === "a");
@@ -32,48 +32,48 @@ describe("rankBids", () => {
     expect(b?.value).toBeCloseTo(0.82, 10);
   });
 
-  it("treats all-equal rates as priceNorm 1 for every bid", () => {
+  it("treats all-equal totals as priceNorm 1 for every bid", () => {
     const result = rankBids([
-      { id: "a", rate: 50, reliabilityScore: 90 },
-      { id: "b", rate: 50, reliabilityScore: 70 },
+      { id: "a", amount: 50, reliabilityScore: 90 },
+      { id: "b", amount: 50, reliabilityScore: 70 },
     ]);
     expect(result.map((b) => b.id)).toEqual(["a", "b"]);
     expect(result[0].value).toBeCloseTo(0.6 * 0.9 + 0.4, 10);
     expect(result[1].value).toBeCloseTo(0.6 * 0.7 + 0.4, 10);
   });
 
-  it("tie-breaks by lower rate then id ascending", () => {
+  it("tie-breaks by lower total then id ascending", () => {
     const result = rankBids([
-      { id: "z", rate: 40, reliabilityScore: 50 },
-      { id: "y", rate: 40, reliabilityScore: 50 },
-      { id: "x", rate: 30, reliabilityScore: 30 },
+      { id: "z", amount: 40, reliabilityScore: 50 },
+      { id: "y", amount: 40, reliabilityScore: 50 },
+      { id: "x", amount: 30, reliabilityScore: 30 },
     ]);
     expect(result.map((b) => b.id)).toEqual(["x", "y", "z"]);
   });
 
-  it("rejects a non-positive rate", () => {
-    expect(() => rankBids([{ id: "a", rate: 0, reliabilityScore: 50 }])).toThrow(
+  it("rejects a non-positive total", () => {
+    expect(() => rankBids([{ id: "a", amount: 0, reliabilityScore: 50 }])).toThrow(
       RangeError,
     );
-    expect(() => rankBids([{ id: "a", rate: -1, reliabilityScore: 50 }])).toThrow(
+    expect(() => rankBids([{ id: "a", amount: -1, reliabilityScore: 50 }])).toThrow(
       RangeError,
     );
   });
 
   it("rejects a reliability score outside 0..100", () => {
     expect(() =>
-      rankBids([{ id: "a", rate: 10, reliabilityScore: -1 }]),
+      rankBids([{ id: "a", amount: 10, reliabilityScore: -1 }]),
     ).toThrow(RangeError);
     expect(() =>
-      rankBids([{ id: "a", rate: 10, reliabilityScore: 101 }]),
+      rankBids([{ id: "a", amount: 10, reliabilityScore: 101 }]),
     ).toThrow(RangeError);
   });
 
   it("keeps every value within [0, 1]", () => {
     const result = rankBids([
-      { id: "a", rate: 100, reliabilityScore: 100 },
-      { id: "b", rate: 1, reliabilityScore: 0 },
-      { id: "c", rate: 50, reliabilityScore: 50 },
+      { id: "a", amount: 100, reliabilityScore: 100 },
+      { id: "b", amount: 1, reliabilityScore: 0 },
+      { id: "c", amount: 50, reliabilityScore: 50 },
     ]);
     for (const bid of result) {
       expect(bid.value).toBeGreaterThanOrEqual(0);
@@ -83,8 +83,8 @@ describe("rankBids", () => {
 
   it("does not mutate the input array or its objects", () => {
     const input: Bid[] = [
-      { id: "a", rate: 50, reliabilityScore: 90 },
-      { id: "b", rate: 30, reliabilityScore: 70 },
+      { id: "a", amount: 50, reliabilityScore: 90 },
+      { id: "b", amount: 30, reliabilityScore: 70 },
     ];
     const snapshot = input.map((b) => ({ ...b }));
     const result = rankBids(input);

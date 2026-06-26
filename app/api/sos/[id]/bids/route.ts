@@ -59,7 +59,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   const { data, error } = await supabase
     .from("sos_bids")
-    .insert({ request_id: id, tutor_id: user.id, rate: parsed.data.rate })
+    .insert({ request_id: id, tutor_id: user.id, amount: parsed.data.amount })
     .select()
     .single();
 
@@ -68,6 +68,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  await notifyNewBid({ studentId: sos.student_id, moduleCode: sos.module_code, rate: parsed.data.rate });
+  await notifyNewBid({ studentId: sos.student_id, moduleCode: sos.module_code, amount: parsed.data.amount });
   return NextResponse.json({ bid: data });
 }

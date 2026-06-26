@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 
 export default function BidForm({ requestId }: { requestId: string }) {
   const router = useRouter();
-  const [rate, setRate] = useState(20);
+  const [amount, setAmount] = useState(30);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -16,27 +17,37 @@ export default function BidForm({ requestId }: { requestId: string }) {
     const res = await fetch(`/api/sos/${requestId}/bids`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ rate: Number(rate) }),
+      body: JSON.stringify({ amount: Number(amount) }),
     });
     setBusy(false);
     if (!res.ok) {
       setError((await res.json()).error ?? "Could not bid");
       return;
     }
+    setSubmitted(true);
     router.refresh();
   }
 
+  if (submitted) {
+    return (
+      <p className="text-sm font-semibold text-emerald-600">
+        Bid submitted. Waiting for the student to choose.
+      </p>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
+      <label className="text-sm text-gray-500">Your total offer</label>
       <span className="text-sm text-gray-500">$</span>
       <input
         type="number"
         min={1}
-        value={rate}
-        onChange={(e) => setRate(Number(e.target.value))}
+        step="0.01"
+        value={amount}
+        onChange={(e) => setAmount(Number(e.target.value))}
         className="w-24 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
       />
-      <span className="text-sm text-gray-500">/hr</span>
       <button
         type="submit"
         disabled={busy}

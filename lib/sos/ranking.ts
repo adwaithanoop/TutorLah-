@@ -1,6 +1,6 @@
 export interface Bid {
   id: string;
-  rate: number;
+  amount: number;
   reliabilityScore: number;
 }
 
@@ -17,8 +17,8 @@ export function rankBids(bids: Bid[]): RankedBid[] {
   if (bids.length === 0) return [];
 
   for (const bid of bids) {
-    if (bid.rate <= 0) {
-      throw new RangeError(`rate must be positive, got ${bid.rate}`);
+    if (bid.amount <= 0) {
+      throw new RangeError(`amount must be positive, got ${bid.amount}`);
     }
     if (bid.reliabilityScore < 0 || bid.reliabilityScore > 100) {
       throw new RangeError(
@@ -27,14 +27,14 @@ export function rankBids(bids: Bid[]): RankedBid[] {
     }
   }
 
-  const rates = bids.map((b) => b.rate);
-  const minRate = Math.min(...rates);
-  const maxRate = Math.max(...rates);
-  const span = maxRate - minRate;
+  const amounts = bids.map((b) => b.amount);
+  const minAmount = Math.min(...amounts);
+  const maxAmount = Math.max(...amounts);
+  const span = maxAmount - minAmount;
 
   const ranked: RankedBid[] = bids.map((bid) => {
     const relNorm = bid.reliabilityScore / 100;
-    const priceNorm = span === 0 ? 1 : (maxRate - bid.rate) / span;
+    const priceNorm = span === 0 ? 1 : (maxAmount - bid.amount) / span;
     const value = clamp01(
       RANKING_WEIGHTS.reliability * relNorm + RANKING_WEIGHTS.price * priceNorm,
     );
@@ -43,7 +43,7 @@ export function rankBids(bids: Bid[]): RankedBid[] {
 
   return ranked.sort((a, b) => {
     if (b.value !== a.value) return b.value - a.value;
-    if (a.rate !== b.rate) return a.rate - b.rate;
+    if (a.amount !== b.amount) return a.amount - b.amount;
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
   });
 }

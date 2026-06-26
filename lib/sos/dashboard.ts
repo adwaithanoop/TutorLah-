@@ -7,7 +7,7 @@ type Client = SupabaseClient<Database>;
 
 export interface DashboardBid {
   id: string;
-  rate: number;
+  amount: number;
   status: string;
   tutorName: string;
   reliabilityScore: number;
@@ -19,13 +19,25 @@ export interface MyRequest {
   module_code: string;
   description: string;
   status: string;
+  durationMinutes: number;
+  expiresAt: string;
   bids: DashboardBid[];
+}
+
+export interface MyBid {
+  amount: number;
+  status: string;
 }
 
 export interface OpenRequest {
   id: string;
   module_code: string;
   description: string;
+  durationMinutes: number;
+  expiresAt: string;
+  studentName: string;
+  studentInfo: string | null;
+  myBid: MyBid | null;
 }
 
 export interface SosDashboard {
@@ -37,7 +49,7 @@ export interface SosDashboard {
 
 interface RawBid {
   id: string;
-  rate: number;
+  amount: number;
   status: string;
   tutor_id: string;
   tutor: { full_name: string; avg_rating: number; rating_count: number; sessions_completed: number; sessions_booked: number } | null;
@@ -48,7 +60,19 @@ interface RawRequest {
   module_code: string;
   description: string;
   status: string;
+  duration_minutes: number;
+  expires_at: string;
   sos_bids: RawBid[];
+}
+
+interface RawOpenRequest {
+  id: string;
+  module_code: string;
+  description: string;
+  duration_minutes: number;
+  expires_at: string;
+  student_id: string;
+  student: { full_name: string; faculty: string | null; year: string | null } | null;
 }
 
 export async function loadSosDashboard(
@@ -66,7 +90,7 @@ export async function loadSosDashboard(
   const { data: rawMine } = await supabase
     .from("sos_requests")
     .select(
-      "id, module_code, description, status, sos_bids(id, rate, status, tutor_id, tutor:profiles!sos_bids_tutor_id_fkey(full_name, avg_rating, rating_count, sessions_completed, sessions_booked))",
+      "id, module_code, description, status, duration_minutes, expires_at, sos_bids(id, amount, status, tutor_id, tutor:profiles!sos_bids_tutor_id_fkey(full_name, avg_rating, rating_count, sessions_completed, sessions_booked))",
     )
     .eq("student_id", userId)
     .order("created_at", { ascending: false });
@@ -94,7 +118,7 @@ export async function loadSosDashboard(
       return { bid, reliabilityScore };
     });
 
-    const ranked = rankBids(scored.map((s) => ({ id: s.bid.id, rate: Number(s.bid.rate), reliabilityScore: s.reliabilityScore })));
+    const ranked = rankBids(scored.map((s) => ({ id: s.bid.id, amount: Number(s.bid.amount), reliabilityScore: s.reliabilityScore })));
     const byId = new Map(scored.map((s) => [s.bid.id, s]));
 
     return {
@@ -102,11 +126,13 @@ export async function loadSosDashboard(
       module_code: req.module_code,
       description: req.description,
       status: req.status,
+      durationMinutes: req.duration_minutes,
+      expiresAt: req.expires_at,
       bids: ranked.map((r) => {
         const s = byId.get(r.id)!;
         return {
           id: r.id,
-          rate: Number(s.bid.rate),
+          amount: Number(s.bid.amount),
           status: s.bid.status,
           tutorName: s.bid.tutor?.full_name ?? "Tutor",
           reliabilityScore: s.reliabilityScore,
@@ -119,7 +145,7 @@ export async function loadSosDashboard(
   const openForMe: OpenRequest[] =
     !receivingSos || myVerifiedModules.length === 0
       ? []
-      : await loadOpenForMe(supabase, userId, myVerifiedModules);
+      : await loadOpenForMe(supabase, userId, myVerifiedModules, now);
 
   return { myRequests, openForMe, myVerifiedModules, receivingSos };
 }
@@ -149,14 +175,47 @@ async function loadBidderModules(supabase: Client, mine: RawRequest[]) {
   return map;
 }
 
-async function loadOpenForMe(supabase: Client, userId: string, modules: string[]): Promise<OpenRequest[]> {
+async function loadOpenForMe(
+  supabase: Client,
+  userId: string,
+  modules: string[],
+  now: Date,
+): Promise<OpenRequest[]> {
   const { data } = await supabase
     .from("sos_requests")
-    .select("id, module_code, description, student_id")
+    .select(
+      "id, module_code, description, duration_minutes, expires_at, student_id, student:profiles!sos_requests_student_id_fkey(full_name, faculty, year)",
+    )
     .eq("status", "open")
+    .gt("expires_at", now.toISOString())
     .in("module_code", modules)
     .order("created_at", { ascending: false });
-  return (data ?? [])
-    .filter((r) => r.student_id !== userId)
-    .map(({ id, module_code, description }) => ({ id, module_code, description }));
+  const open = ((data as RawOpenRequest[] | null) ?? []).filter((r) => r.student_id !== userId);
+  if (open.length === 0) return [];
+
+  const { data: bids } = await supabase
+    .from("sos_bids")
+    .select("request_id, amount, status")
+    .eq("tutor_id", userId)
+    .in(
+      "request_id",
+      open.map((r) => r.id),
+    );
+  const myBidByRequest = new Map(
+    (bids ?? []).map((b) => [b.request_id, { amount: Number(b.amount), status: b.status as string }]),
+  );
+
+  return open.map((r) => {
+    const studentInfo = [r.student?.year, r.student?.faculty].filter(Boolean).join(", ");
+    return {
+      id: r.id,
+      module_code: r.module_code,
+      description: r.description,
+      durationMinutes: r.duration_minutes,
+      expiresAt: r.expires_at,
+      studentName: r.student?.full_name ?? "Student",
+      studentInfo: studentInfo || null,
+      myBid: myBidByRequest.get(r.id) ?? null,
+    };
+  });
 }
