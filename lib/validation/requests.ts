@@ -5,7 +5,7 @@ const isoDate = z.string().refine((s) => !Number.isNaN(Date.parse(s)), {
   message: "Invalid date/time",
 });
 
-const ALLOWED_DURATION_MIN = [60, 90, 120, 150, 180];
+export const ALLOWED_DURATION_MIN = [60, 90, 120, 150, 180];
 const MIN_MS = 60_000;
 
 // A single requested or offered slot. The duration is constrained to the bookable
@@ -53,14 +53,13 @@ export const acceptCounterSchema = z
   });
 
 // Tutor's weekly availability block. Minutes sit on the half-hour grid, and each block is
-// one session-sized window: at least 1 hour and at most 3 hours. Longer availability is
-// expressed as several adjacent blocks, so a tutor can never mark a whole afternoon as a
-// single slot and assume the app will carve it up.
+// one session-sized window: at least 1 hour and at most 3 hours. It must start before
+// midnight, but can finish after midnight.
 export const weeklyBlockSchema = z
   .object({
     weekday: z.number().int().min(0).max(6),
-    start_minute: z.number().int().min(0).max(1380).multipleOf(30),
-    end_minute: z.number().int().min(60).max(1440).multipleOf(30),
+    start_minute: z.number().int().min(0).max(1410).multipleOf(30),
+    end_minute: z.number().int().min(60).max(1590).multipleOf(30),
   })
   .refine((b) => b.end_minute - b.start_minute >= 60 && b.end_minute - b.start_minute <= 180, {
     message: "A block must be between 1 and 3 hours long",

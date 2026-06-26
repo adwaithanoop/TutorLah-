@@ -42,7 +42,16 @@ describe("weeklyBlockSchema", () => {
     expect(weeklyBlockSchema.safeParse({ weekday: 1, start_minute: 960, end_minute: 1140 }).success).toBe(true);
   });
 
+  test("accepts a block that starts before midnight and ends after midnight", () => {
+    expect(weeklyBlockSchema.safeParse({ weekday: 1, start_minute: 1410, end_minute: 1470 }).success).toBe(true);
+  });
+
   test("rejects a block longer than three hours", () => {
     expect(weeklyBlockSchema.safeParse({ weekday: 1, start_minute: 960, end_minute: 1170 }).success).toBe(false);
+  });
+
+  test("rejects blocks that start at midnight or end too far after midnight", () => {
+    expect(weeklyBlockSchema.safeParse({ weekday: 1, start_minute: 1440, end_minute: 1500 }).success).toBe(false);
+    expect(weeklyBlockSchema.safeParse({ weekday: 1, start_minute: 1410, end_minute: 1620 }).success).toBe(false);
   });
 });

@@ -21,9 +21,10 @@ export interface WeeklyBlock {
 const MIN_BLOCK = 60;
 const MAX_BLOCK = 180;
 const DAY_END = 1440;
+const MAX_BLOCK_END = DAY_END - 30 + MAX_BLOCK;
 
-// A block must fit a single session, so the latest it can start is 1 hour before midnight.
-const LATEST_START = DAY_END - MIN_BLOCK;
+// A block must start before midnight, but it can finish after midnight.
+const LATEST_START = DAY_END - 30;
 
 export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlock[] }) {
   const router = useRouter();
@@ -35,17 +36,16 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
 
   const startMarks = useMemo(() => gridMarks().filter((m) => m.value <= LATEST_START), []);
 
-  // The end can only be 1 to 3 hours after the start in half-hour steps, so an out-of-range
-  // block can never be entered. Options that would run past midnight are dropped.
+  // The end can only be 1 to 3 hours after the start in half-hour steps.
   const endChoices = useMemo(
-    () => [60, 90, 120, 150, 180].map((d) => startMinute + d).filter((v) => v <= DAY_END),
+    () => [60, 90, 120, 150, 180].map((d) => startMinute + d).filter((v) => v <= MAX_BLOCK_END),
     [startMinute],
   );
 
   function changeStart(value: number) {
     const duration = Math.min(MAX_BLOCK, Math.max(MIN_BLOCK, endMinute - startMinute));
     setStartMinute(value);
-    setEndMinute(Math.min(DAY_END, value + duration));
+    setEndMinute(Math.min(MAX_BLOCK_END, value + duration));
   }
 
   const byDay = useMemo(() => {
@@ -91,9 +91,9 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
       <div>
         <h2 className="font-bold text-gray-900">Weekly booking slots</h2>
         <p className="text-sm text-gray-500">
-          Add the times students can book you, one block per window (1 to 3 hours each). Students
-          pick a length and start time inside it. Back-to-back blocks merge into one longer window.
-          Changes here never affect sessions already booked.
+          Add the weekly times students can book you. Each block is a bookable window from 1 to 3
+          hours, and students pick a session length that fits inside it. Existing bookings are not
+          changed.
         </p>
       </div>
 

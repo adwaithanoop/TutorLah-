@@ -43,6 +43,14 @@ describe("expandWeeklyBlocks", () => {
     expect(out).toEqual([{ start: sgt(2026, 6, 15, 23), end: sgt(2026, 6, 16, 0) }]);
   });
 
+  test("keeps an overnight block that spills into the requested day", () => {
+    const blocks = [block(MON, 23, 25)];
+    const from = sgt(2026, 6, 16, 0, 30); // Tue
+    const to = sgt(2026, 6, 16, 2);
+    const out = expandWeeklyBlocks(blocks, from, to);
+    expect(out).toEqual([{ start: sgt(2026, 6, 15, 23), end: sgt(2026, 6, 16, 1) }]);
+  });
+
   test("returns nothing without blocks or with an empty range", () => {
     expect(expandWeeklyBlocks([], sgt(2026, 6, 15, 0), sgt(2026, 6, 22, 0))).toEqual([]);
     expect(expandWeeklyBlocks([block(MON, 16, 20)], sgt(2026, 6, 22, 0), sgt(2026, 6, 15, 0))).toEqual([]);
@@ -98,6 +106,15 @@ describe("slotsForDuration and bookableDays", () => {
       { start: sgt(2026, 6, 15, 16).toISOString(), end: sgt(2026, 6, 15, 17, 30).toISOString() },
       { start: sgt(2026, 6, 15, 16, 30).toISOString(), end: sgt(2026, 6, 15, 18).toISOString() },
     ]);
+  });
+
+  test("emits slots that start before midnight and end after midnight", () => {
+    const windows: TimeInterval[] = [{ start: sgt(2026, 6, 15, 23), end: sgt(2026, 6, 16, 1) }];
+    const out = slotsForDuration(windows, 60, sgt(2026, 6, 15, 0));
+    expect(out).toContainEqual({
+      start: sgt(2026, 6, 15, 23, 30).toISOString(),
+      end: sgt(2026, 6, 16, 0, 30).toISOString(),
+    });
   });
 
   test("a day is bookable only if the duration fits", () => {

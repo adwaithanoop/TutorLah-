@@ -11,10 +11,11 @@ const MIN_MS = 60_000;
 export const ALLOWED_DURATIONS_MIN = [60, 90, 120, 150, 180] as const;
 export type DurationMin = (typeof ALLOWED_DURATIONS_MIN)[number];
 export const SLOT_GRID_MIN = 30;
-export const MAX_WEEKDAY_MINUTE = 24 * 60;
+export const MAX_WEEKDAY_MINUTE = 24 * 60 + 150;
 
 // A tutor's repeating weekly slot. weekday is 0 (Sunday) through 6 (Saturday) in the
-// Singapore wall clock; the minutes count from local midnight.
+// Singapore wall clock; the minutes count from local midnight and may spill into the
+// next day for overnight blocks.
 export interface WeeklyBlock {
   weekday: number;
   start_minute: number;
@@ -50,7 +51,7 @@ export function expandWeeklyBlocks(blocks: WeeklyBlock[], from: Date, to: Date):
   if (blocks.length === 0 || to <= from) return [];
   const out: TimeInterval[] = [];
   const firstDay = sgtParts(from.getTime());
-  let midnight = sgtMidnightUtc(firstDay.y, firstDay.m, firstDay.d);
+  let midnight = sgtMidnightUtc(firstDay.y, firstDay.m, firstDay.d) - DAY_MS;
   const toMs = to.getTime();
   const fromMs = from.getTime();
 
