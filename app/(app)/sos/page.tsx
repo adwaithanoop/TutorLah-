@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/user";
+import { getMode } from "@/app/(app)/mode";
 import { listSubjects } from "@/lib/modules/catalog";
 import { loadSosDashboard } from "@/lib/sos/dashboard";
 import PostSosForm from "@/app/components/sos/PostSosForm";
@@ -9,31 +10,34 @@ import AcceptButton from "@/app/components/sos/AcceptButton";
 import ResolveButton from "@/app/components/sos/ResolveButton";
 import RefreshButton from "@/app/components/sos/RefreshButton";
 import SosRealtime from "@/app/components/sos/SosRealtime";
+import SosCountdown from "@/app/components/sos/SosCountdown";
+import { durationLabel } from "@/lib/scheduling/display";
 
 const STATUS_LABEL: Record<string, string> = {
   open: "Open",
   matched: "Matched",
   cancelled: "Resolved",
+  expired: "Expired",
 };
 
 export default async function SosPage() {
   const supabase = await createClient();
-  const user = await getCurrentUser(supabase);
+  const [mode, user] = await Promise.all([getMode(), getCurrentUser(supabase)]);
 
   const [{ myRequests, openForMe, receivingSos }, modules] = await Promise.all([
     loadSosDashboard(supabase, user!.id),
-    listSubjects(),
+    mode === "student" ? listSubjects() : Promise.resolve([]),
   ]);
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
       <SosRealtime />
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">SOS: urgent help</h1>
         <RefreshButton />
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      {mode === "student" ? (
         <section className="space-y-4">
           <PostSosForm modules={modules} />
           <h2 className="text-lg font-bold text-gray-900">Your requests</h2>
@@ -45,18 +49,24 @@ export default async function SosPage() {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm font-semibold text-indigo-700">{req.module_code}</span>
+                    <span className="text-xs text-gray-400">{durationLabel(req.durationMinutes)} session</span>
                     <span className="text-xs text-gray-400">{STATUS_LABEL[req.status] ?? req.status}</span>
                   </div>
-                  {req.status === "open" && <ResolveButton requestId={req.id} />}
+                  <div className="flex items-center gap-2">
+                    {req.status === "open" && <SosCountdown expiresAt={req.expiresAt} />}
+                    {req.status === "open" && <ResolveButton requestId={req.id} />}
+                  </div>
                 </div>
                 <p className="mt-1 text-sm text-gray-600">{req.description}</p>
                 <div className="mt-3 space-y-2">
-                  {req.bids.length === 0 && <p className="text-xs text-gray-400">Waiting for bids…</p>}
+                  {req.status === "open" && req.bids.length === 0 && (
+                    <p className="text-xs text-gray-400">Waiting for bids...</p>
+                  )}
                   {req.bids.map((bid, i) => (
                     <div key={bid.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                       <div className="text-sm">
                         <span className="font-semibold text-gray-900">{bid.tutorName}</span>
-                        <span className="ml-2 text-gray-500">${bid.rate}/hr</span>
+                        <span className="ml-2 text-gray-500">${bid.amount.toFixed(2)}</span>
                         <span className="ml-2 text-xs text-emerald-600">score {bid.reliabilityScore}</span>
                         {i === 0 && req.status === "open" && (
                           <span className="ml-2 rounded bg-indigo-100 px-1.5 py-0.5 text-xs font-semibold text-indigo-700">
@@ -65,7 +75,7 @@ export default async function SosPage() {
                         )}
                       </div>
                       {req.status === "open" && bid.status === "pending" && (
-                        <AcceptButton requestId={req.id} bidId={bid.id} />
+                        <AcceptButton requestId={req.id} bidId={bid.id} amount={bid.amount} />
                       )}
                       {bid.status === "accepted" && <span className="text-xs font-semibold text-emerald-600">accepted</span>}
                     </div>
@@ -75,7 +85,7 @@ export default async function SosPage() {
             ))
           )}
         </section>
-
+      ) : (
         <section className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900">Requests you can help with</h2>
           {!receivingSos ? (
@@ -93,14 +103,27 @@ export default async function SosPage() {
           ) : (
             openForMe.map((req) => (
               <div key={req.id} className="rounded-2xl bg-white shadow-soft p-5">
-                <span className="font-mono text-sm font-semibold text-indigo-700">{req.module_code}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-sm font-semibold text-indigo-700">{req.module_code}</span>
+                  <SosCountdown expiresAt={req.expiresAt} />
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  {req.studentName}
+                  {req.studentInfo ? ` (${req.studentInfo})` : ""} needs a {durationLabel(req.durationMinutes)} session
+                </p>
                 <p className="mt-1 mb-3 text-sm text-gray-600">{req.description}</p>
-                <BidForm requestId={req.id} />
+                {req.myBid ? (
+                  <p className="text-sm font-semibold text-emerald-600">
+                    Bid submitted. ${req.myBid.amount.toFixed(2)} offered. Waiting for the student to choose.
+                  </p>
+                ) : (
+                  <BidForm requestId={req.id} />
+                )}
               </div>
             ))
           )}
         </section>
-      </div>
+      )}
     </main>
   );
 }

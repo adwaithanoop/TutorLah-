@@ -29,11 +29,22 @@ export function formatSosTakenMessage(input: { moduleCode: string }): { text: st
 
 export function formatNewBidMessage(input: {
   moduleCode: string;
-  rate: number;
+  amount: number;
   siteUrl: string;
 }): { text: string; link: string } {
   const text =
     `💰 <b>New bid</b> on your SOS for <b>${escapeHtml(input.moduleCode)}</b>\n\n` +
-    `A tutor offered $${input.rate}/hr.`;
+    `A tutor offered $${input.amount.toFixed(2)} for the whole session.`;
   return { text, link: `${trimTrailingSlash(input.siteUrl)}/sos` };
+}
+
+export function formatSosWonMessage(input: {
+  moduleCode: string;
+  amount: number;
+  siteUrl: string;
+}): { text: string; link: string } {
+  const text =
+    `🎉 <b>Bid accepted</b> for <b>${escapeHtml(input.moduleCode)}</b>\n\n` +
+    `Your $${input.amount.toFixed(2)} bid won. The session is now in your bookings.`;
+  return { text, link: `${trimTrailingSlash(input.siteUrl)}/bookings` };
 }
