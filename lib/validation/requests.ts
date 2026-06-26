@@ -33,8 +33,12 @@ export const blastSchema = z.object({
     .max(10, "You can send at most 10 requests at once"),
 });
 
+// `silent` lets the inbox close the sibling slots of a grouped request (the losers of a
+// counter-offer, or the rest of a "decline all") without firing a notification for each one,
+// so a single tutor action turns into a single student alert, not one per slot.
 export const requestActionSchema = z.object({
   action: z.enum(["accept", "decline", "cancel"]),
+  silent: z.boolean().optional(),
 });
 
 export const counterProposeSchema = z.object({

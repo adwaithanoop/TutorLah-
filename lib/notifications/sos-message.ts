@@ -1,10 +1,7 @@
 import { escapeHtml } from "./html";
+import { trimTrailingSlash } from "./site-url";
 
 export const MAX_DESCRIPTION = 400;
-
-function trimTrailingSlash(url: string): string {
-  return url.replace(/\/+$/, "");
-}
 
 function clampDescription(description: string): string {
   if (description.length <= MAX_DESCRIPTION) return description;
@@ -28,4 +25,15 @@ export function formatSosTakenMessage(input: { moduleCode: string }): { text: st
       `✅ The SOS for <b>${escapeHtml(input.moduleCode)}</b> has been taken.\n\n` +
       "Another tutor was matched, no action needed.",
   };
+}
+
+export function formatNewBidMessage(input: {
+  moduleCode: string;
+  rate: number;
+  siteUrl: string;
+}): { text: string; link: string } {
+  const text =
+    `💰 <b>New bid</b> on your SOS for <b>${escapeHtml(input.moduleCode)}</b>\n\n` +
+    `A tutor offered $${input.rate}/hr.`;
+  return { text, link: `${trimTrailingSlash(input.siteUrl)}/sos` };
 }

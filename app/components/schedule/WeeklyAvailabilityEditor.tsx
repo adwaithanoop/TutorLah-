@@ -91,11 +91,9 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
       <div>
         <h2 className="font-bold text-gray-900">Weekly booking slots</h2>
         <p className="text-sm text-gray-500">
-          These are the exact times students can book you. Add one block per window, each 1 to 3
-          hours long; students then choose a length and a start time inside your blocks. Free for a
-          longer stretch? Add back-to-back blocks (for Monday 4 to 8 PM, add 4:00 to 6:00 PM and 6:00
-          to 8:00 PM) and they join into one bookable window. Editing here never changes sessions
-          already booked.
+          Add the times students can book you, one block per window (1 to 3 hours each). Students
+          pick a length and start time inside it. Back-to-back blocks merge into one longer window.
+          Changes here never affect sessions already booked.
         </p>
       </div>
 

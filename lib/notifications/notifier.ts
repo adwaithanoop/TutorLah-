@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CandidateTutor, selectSosRecipients } from "./recipients";
-import { formatSosMessage, formatSosTakenMessage } from "./sos-message";
+import { formatSosMessage, formatSosTakenMessage, formatNewBidMessage } from "./sos-message";
+import { formatBookingResponseMessage, type BookingAction } from "./booking-message";
 import { sendTelegramMessage } from "./telegram";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
@@ -76,5 +77,60 @@ export async function notifySosTaken(bookingId: string): Promise<void> {
 
     const { text } = formatSosTakenMessage({ moduleCode: booking.module_code });
     await Promise.allSettled(chatIds.map((chatId) => sendTelegramMessage(chatId, text)));
+  } catch {}
+}
+
+async function lookupChatId(admin: AdminClient, userId: string): Promise<number | null> {
+  const { data } = await admin
+    .from("telegram_accounts")
+    .select("chat_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data?.chat_id ?? null;
+}
+
+export interface NewBidNotification {
+  studentId: string;
+  moduleCode: string;
+  rate: number;
+}
+
+export async function notifyNewBid(bid: NewBidNotification): Promise<void> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) return;
+
+  try {
+    const admin = createAdminClient();
+    const chatId = await lookupChatId(admin, bid.studentId);
+    if (chatId === null) return;
+
+    const { text, link } = formatNewBidMessage({ moduleCode: bid.moduleCode, rate: bid.rate, siteUrl });
+    await sendTelegramMessage(chatId, text, { button: { text: "View bids", url: link } });
+  } catch {}
+}
+
+export interface BookingResponseNotification {
+  studentId: string;
+  action: BookingAction;
+  moduleCode: string;
+  when: string;
+}
+
+export async function notifyBookingResponse(response: BookingResponseNotification): Promise<void> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) return;
+
+  try {
+    const admin = createAdminClient();
+    const chatId = await lookupChatId(admin, response.studentId);
+    if (chatId === null) return;
+
+    const { text, link } = formatBookingResponseMessage({
+      action: response.action,
+      moduleCode: response.moduleCode,
+      when: response.when,
+      siteUrl,
+    });
+    await sendTelegramMessage(chatId, text, { button: { text: "View request", url: link } });
   } catch {}
 }

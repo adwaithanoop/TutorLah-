@@ -129,12 +129,17 @@ export default function TutorInbox({
     else router.refresh();
   }
 
-  // Declining a group closes every slot the student offered for that module.
+  // Declining a group closes every slot the student offered for that module. Only the first
+  // slot notifies the student, so one "decline all" sends one alert, not one per slot.
   async function declineGroup(group: RequestGroup) {
     setError("");
     const results = await Promise.all(
-      group.slots.map((s) =>
-        fetch(`/api/booking-requests/${s.id}`, { method: "POST", headers: HEADERS, body: JSON.stringify({ action: "decline" }) }),
+      group.slots.map((s, i) =>
+        fetch(`/api/booking-requests/${s.id}`, {
+          method: "POST",
+          headers: HEADERS,
+          body: JSON.stringify({ action: "decline", silent: i > 0 }),
+        }),
       ),
     );
     if (results.some((r) => !r.ok)) setError("Some requests could not be declined");
@@ -178,7 +183,11 @@ export default function TutorInbox({
     }
     await Promise.all(
       rest.map((id) =>
-        fetch(`/api/booking-requests/${id}`, { method: "POST", headers: HEADERS, body: JSON.stringify({ action: "decline" }) }),
+        fetch(`/api/booking-requests/${id}`, {
+          method: "POST",
+          headers: HEADERS,
+          body: JSON.stringify({ action: "decline", silent: true }),
+        }),
       ),
     );
     setCountering(null);

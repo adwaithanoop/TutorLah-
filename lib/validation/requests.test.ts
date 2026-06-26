@@ -1,4 +1,4 @@
-import { counterProposeSchema, weeklyBlockSchema } from "./requests";
+import { counterProposeSchema, requestActionSchema, weeklyBlockSchema } from "./requests";
 
 const slot = (startIso: string, minutes: number) => ({
   scheduled_start: startIso,
@@ -18,6 +18,22 @@ describe("counterProposeSchema slot duration", () => {
     for (const minutes of [45, 210]) {
       expect(counterProposeSchema.safeParse({ slots: [slot(start, minutes)] }).success).toBe(false);
     }
+  });
+});
+
+describe("requestActionSchema", () => {
+  test("accepts an action without the silent flag", () => {
+    expect(requestActionSchema.safeParse({ action: "decline" }).success).toBe(true);
+  });
+
+  test("accepts the optional silent flag for grouped cleanup declines", () => {
+    const parsed = requestActionSchema.safeParse({ action: "decline", silent: true });
+    expect(parsed.success).toBe(true);
+    expect(parsed.success && parsed.data.silent).toBe(true);
+  });
+
+  test("rejects an unknown action", () => {
+    expect(requestActionSchema.safeParse({ action: "counter" }).success).toBe(false);
   });
 });
 

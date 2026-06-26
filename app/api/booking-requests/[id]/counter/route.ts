@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { counterProposeSchema } from "@/lib/validation/requests";
 import { counterPropose } from "@/lib/booking/requests";
+import { notifyBookingResponse } from "@/lib/notifications/notifier";
+import { formatSgtRange } from "@/lib/scheduling/display";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
@@ -32,6 +34,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     const offer = await counterPropose(createAdminClient(), user.id, id, parsed.data.slots);
+    const first = parsed.data.slots[0];
+    await notifyBookingResponse({
+      studentId: offer.student_id,
+      action: "counter",
+      moduleCode: offer.module_code,
+      when: formatSgtRange(first.scheduled_start, first.scheduled_end),
+    });
     return NextResponse.json({ offer });
   } catch (error) {
     return NextResponse.json(

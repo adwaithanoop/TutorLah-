@@ -7,6 +7,8 @@ import {
   declineBookingRequest,
   cancelBookingRequest,
 } from "@/lib/booking/requests";
+import { notifyBookingResponse } from "@/lib/notifications/notifier";
+import { formatSgtDateTime } from "@/lib/scheduling/display";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
@@ -39,10 +41,24 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     if (parsed.data.action === "accept") {
       const booking = await acceptBookingRequest(admin, user.id, id);
+      await notifyBookingResponse({
+        studentId: booking.student_id,
+        action: "accept",
+        moduleCode: booking.module_code,
+        when: formatSgtDateTime(booking.scheduled_start),
+      });
       return NextResponse.json({ booking });
     }
     if (parsed.data.action === "decline") {
-      await declineBookingRequest(admin, user.id, id);
+      const declined = await declineBookingRequest(admin, user.id, id);
+      if (!parsed.data.silent) {
+        await notifyBookingResponse({
+          studentId: declined.student_id,
+          action: "decline",
+          moduleCode: declined.module_code,
+          when: formatSgtDateTime(declined.scheduled_start),
+        });
+      }
       return NextResponse.json({ ok: true });
     }
     await cancelBookingRequest(admin, user.id, id);
