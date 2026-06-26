@@ -5,6 +5,7 @@ import { ESCROW_STATE_LABELS, ESCROW_STATE_STYLES } from "@/app/components/booki
 import AddModuleForm from "@/app/components/modules/AddModuleForm";
 import ModuleList, { type TutorModule } from "@/app/components/modules/ModuleList";
 import VerifiedModuleList from "@/app/components/modules/VerifiedModuleList";
+import AvailabilityToggle from "@/app/components/dashboard/AvailabilityToggle";
 
 interface UpcomingBooking {
   id: string;
@@ -23,7 +24,7 @@ export default async function TutorDashboard() {
   const [{ data: profile }, { data: moduleRows }, { data: upcomingData }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("full_name, is_active, avg_rating, rating_count, sessions_completed")
+      .select("full_name, is_active, receiving_sos, avg_rating, rating_count, sessions_completed")
       .eq("id", user!.id)
       .maybeSingle(),
     supabase
@@ -51,7 +52,6 @@ export default async function TutorDashboard() {
 
   const upcoming = (upcomingData as UpcomingBooking[] | null) ?? [];
   const firstName = profile?.full_name?.trim().split(/\s+/)[0] || "there";
-  const isActive = profile?.is_active ?? false;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -63,17 +63,10 @@ export default async function TutorDashboard() {
           </h1>
           <p className="mt-1 text-indigo-900/60">Respond to requests and grow your Reliability Score.</p>
         </div>
-        <Link
-          href="/profile"
-          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
-            isActive
-              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-              : "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200"
-          }`}
-        >
-          <span className={`h-2 w-2 rounded-full ${isActive ? "bg-emerald-500" : "bg-indigo-400"}`} />
-          {isActive ? "Active: Receiving SOS" : "Inactive"}
-        </Link>
+        <AvailabilityToggle
+          initialActive={profile?.is_active ?? false}
+          initialReceivingSos={profile?.receiving_sos ?? false}
+        />
       </header>
 
       <section className="mb-10 grid gap-4 sm:grid-cols-3">

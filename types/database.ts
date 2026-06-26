@@ -367,6 +367,7 @@ export type Database = {
           body: string
           created_at: string
           id: string
+          read_at: string | null
           recipient_id: string
           sender_id: string
         }
@@ -374,6 +375,7 @@ export type Database = {
           body: string
           created_at?: string
           id?: string
+          read_at?: string | null
           recipient_id: string
           sender_id: string
         }
@@ -381,6 +383,7 @@ export type Database = {
           body?: string
           created_at?: string
           id?: string
+          read_at?: string | null
           recipient_id?: string
           sender_id?: string
         }
@@ -461,6 +464,7 @@ export type Database = {
           is_tutor: boolean
           rate_per_hour: number
           rating_count: number
+          receiving_sos: boolean
           sessions_booked: number
           sessions_completed: number
           year: string | null
@@ -478,6 +482,7 @@ export type Database = {
           is_tutor?: boolean
           rate_per_hour?: number
           rating_count?: number
+          receiving_sos?: boolean
           sessions_booked?: number
           sessions_completed?: number
           year?: string | null
@@ -495,6 +500,7 @@ export type Database = {
           is_tutor?: boolean
           rate_per_hour?: number
           rating_count?: number
+          receiving_sos?: boolean
           sessions_booked?: number
           sessions_completed?: number
           year?: string | null
@@ -1067,6 +1073,7 @@ export type Database = {
       enrol_in_group: { Args: { p_group: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
       is_nus: { Args: never; Returns: boolean }
+      mark_messages_read: { Args: { p_other: string }; Returns: undefined }
       review_tutor_module: {
         Args: {
           p_allow_resubmit?: boolean

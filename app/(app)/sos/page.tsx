@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/user";
 import { listSubjects } from "@/lib/modules/catalog";
@@ -12,7 +13,7 @@ export default async function SosPage() {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
-  const [{ myRequests, openForMe }, modules] = await Promise.all([
+  const [{ myRequests, openForMe, receivingSos }, modules] = await Promise.all([
     loadSosDashboard(supabase, user!.id),
     listSubjects(),
   ]);
@@ -67,7 +68,15 @@ export default async function SosPage() {
 
         <section className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900">Requests you can help with</h2>
-          {openForMe.length === 0 ? (
+          {!receivingSos ? (
+            <p className="rounded-xl border border-dashed border-gray-200 bg-white p-4 text-sm text-gray-500">
+              You are not receiving SOS requests. Turn it on from your{" "}
+              <Link href="/dashboard/tutor" className="font-semibold text-indigo-600 hover:text-indigo-700">
+                dashboard
+              </Link>{" "}
+              to see and bid on open requests.
+            </p>
+          ) : openForMe.length === 0 ? (
             <p className="text-sm text-gray-500">
               No open requests for your verified modules right now.
             </p>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { clockTime } from "@/lib/chat/format";
 
 export interface ChatMessage {
   id: string;
@@ -9,6 +10,7 @@ export interface ChatMessage {
   recipient_id: string;
   body: string;
   created_at: string;
+  read_at: string | null;
 }
 
 export default function MessageThread({
@@ -25,9 +27,21 @@ export default function MessageThread({
   const [error, setError] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
 
+  const markRead = useCallback(() => {
+    void fetch("/api/messages/read", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ other_id: otherId }),
+    }).catch(() => {});
+  }, [otherId]);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    markRead();
+  }, [markRead]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -40,6 +54,7 @@ export default function MessageThread({
           const msg = payload.new as ChatMessage;
           if (msg.sender_id === otherId) {
             setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+            markRead();
           }
         },
       )
@@ -47,7 +62,7 @@ export default function MessageThread({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [myId, otherId]);
+  }, [myId, otherId, markRead]);
 
   async function send(event: React.FormEvent) {
     event.preventDefault();
@@ -78,7 +93,7 @@ export default function MessageThread({
         {messages.map((m) => {
           const mine = m.sender_id === myId;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div key={m.id} className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
               <div
                 className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm ${
                   mine ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-800"
@@ -86,6 +101,7 @@ export default function MessageThread({
               >
                 {m.body}
               </div>
+              <span className="mt-0.5 px-1 text-[11px] text-gray-400">{clockTime(m.created_at)}</span>
             </div>
           );
         })}
