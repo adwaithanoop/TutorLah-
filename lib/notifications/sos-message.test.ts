@@ -1,4 +1,4 @@
-import { MAX_DESCRIPTION, formatSosMessage, formatSosTakenMessage } from "./sos-message";
+import { MAX_DESCRIPTION, formatSosMessage, formatSosTakenMessage, formatNewBidMessage } from "./sos-message";
 
 describe("formatSosMessage", () => {
   const base = {
@@ -52,5 +52,29 @@ describe("formatSosTakenMessage", () => {
 
   it("escapes html in the module code", () => {
     expect(formatSosTakenMessage({ moduleCode: "<x>" }).text).toContain("&lt;x&gt;");
+  });
+});
+
+describe("formatNewBidMessage", () => {
+  const base = { moduleCode: "CS2103T", rate: 30, siteUrl: "https://tutorlah.app" };
+
+  it("links to the sos page", () => {
+    expect(formatNewBidMessage(base).link).toBe("https://tutorlah.app/sos");
+  });
+
+  it("normalises a trailing slash in the site url", () => {
+    expect(formatNewBidMessage({ ...base, siteUrl: "https://tutorlah.app/" }).link).toBe(
+      "https://tutorlah.app/sos",
+    );
+  });
+
+  it("includes the bold module header and the rate", () => {
+    const { text } = formatNewBidMessage(base);
+    expect(text).toContain("<b>CS2103T</b>");
+    expect(text).toContain("$30/hr");
+  });
+
+  it("escapes html in the module code", () => {
+    expect(formatNewBidMessage({ ...base, moduleCode: "<x>" }).text).toContain("&lt;x&gt;");
   });
 });

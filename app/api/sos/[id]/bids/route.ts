@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { bidSchema } from "@/lib/validation/sos";
+import { notifyNewBid } from "@/lib/notifications/notifier";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -66,5 +67,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (error.code === "23505") return NextResponse.json({ error: "You already bid on this request" }, { status: 409 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await notifyNewBid({ studentId: sos.student_id, moduleCode: sos.module_code, rate: parsed.data.rate });
   return NextResponse.json({ bid: data });
 }
