@@ -6,8 +6,15 @@ import { loadSosDashboard } from "@/lib/sos/dashboard";
 import PostSosForm from "@/app/components/sos/PostSosForm";
 import BidForm from "@/app/components/sos/BidForm";
 import AcceptButton from "@/app/components/sos/AcceptButton";
+import ResolveButton from "@/app/components/sos/ResolveButton";
 import RefreshButton from "@/app/components/sos/RefreshButton";
 import SosRealtime from "@/app/components/sos/SosRealtime";
+
+const STATUS_LABEL: Record<string, string> = {
+  open: "Open",
+  matched: "Matched",
+  cancelled: "Resolved",
+};
 
 export default async function SosPage() {
   const supabase = await createClient();
@@ -35,9 +42,12 @@ export default async function SosPage() {
           ) : (
             myRequests.map((req) => (
               <div key={req.id} className="rounded-2xl bg-white shadow-soft p-5">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm font-semibold text-indigo-700">{req.module_code}</span>
-                  <span className="text-xs text-gray-400">{req.status}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm font-semibold text-indigo-700">{req.module_code}</span>
+                    <span className="text-xs text-gray-400">{STATUS_LABEL[req.status] ?? req.status}</span>
+                  </div>
+                  {req.status === "open" && <ResolveButton requestId={req.id} />}
                 </div>
                 <p className="mt-1 text-sm text-gray-600">{req.description}</p>
                 <div className="mt-3 space-y-2">
