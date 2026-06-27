@@ -18,6 +18,7 @@ export default function HowItWorks() {
         </div>
 
         <div className="mt-16 sm:mt-20">
+          {/* steps, toggles student vs tutor */}
           <RoleToggle />
         </div>
       </div>

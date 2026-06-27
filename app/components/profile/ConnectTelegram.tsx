@@ -17,6 +17,7 @@ export default function ConnectTelegram({
   const [error, setError] = useState("");
   const [linkUrl, setLinkUrl] = useState<string | null>(null);
 
+  // start the telegram link flow and get a deep link
   async function handleConnect() {
     setStatus("working");
     setError("");

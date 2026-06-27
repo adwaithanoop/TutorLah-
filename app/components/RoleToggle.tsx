@@ -9,6 +9,7 @@ type Step = {
   description: string;
 };
 
+// student flow steps
 const studentSteps: Step[] = [
   {
     number: "01",
@@ -36,6 +37,7 @@ const studentSteps: Step[] = [
   },
 ];
 
+// tutor flow steps
 const tutorSteps: Step[] = [
   {
     number: "01",
@@ -64,6 +66,7 @@ const tutorSteps: Step[] = [
 ];
 
 export default function RoleToggle() {
+  // which set of steps to show
   const [role, setRole] = useState<"student" | "tutor">("student");
   const steps = role === "student" ? studentSteps : tutorSteps;
 

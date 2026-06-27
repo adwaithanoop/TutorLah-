@@ -13,6 +13,7 @@ export default function ReportForm({
   scheduledEnd: string;
 }) {
   const router = useRouter();
+  // form state
   const [misconceptions, setMisconceptions] = useState("");
   const [summary, setSummary] = useState("");
   const [error, setError] = useState("");
@@ -28,6 +29,7 @@ export default function ReportForm({
     return () => clearInterval(timer);
   }, [ended]);
 
+  // submit once the session has ended
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!ended) return;

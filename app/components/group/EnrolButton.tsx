@@ -9,6 +9,7 @@ export default function EnrolButton({ groupId, disabled }: { groupId: string; di
   const [error, setError] = useState("");
   const [price, setPrice] = useState<number | null>(null);
 
+  // enrol and show the price charged
   async function enrol() {
     setBusy(true);
     setError("");
@@ -22,6 +23,7 @@ export default function EnrolButton({ groupId, disabled }: { groupId: string; di
     router.refresh();
   }
 
+  // already enrolled
   if (price !== null) {
     return <span className="text-xs font-semibold text-emerald-600">Enrolled at ${price}</span>;
   }

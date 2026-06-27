@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
+// anchor links to page sections
 const navLinks = [
   { label: "Features", href: "#features" },
   { label: "How It Works", href: "#how-it-works" },
@@ -11,6 +12,7 @@ const navLinks = [
   { label: "For Tutors", href: "#for-tutors" },
 ];
 
+// logo
 function Wordmark() {
   return (
     <Link href="/" className="text-xl font-extrabold tracking-tight text-indigo-950">
@@ -20,9 +22,11 @@ function Wordmark() {
 }
 
 export default function Navbar() {
+  // mobile menu open + scrolled flags
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  // solidify nav once scrolled down
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -78,6 +82,7 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* mobile dropdown */}
         {menuOpen && (
           <div className="rounded-b-2xl border-t border-indigo-100 bg-cream shadow-soft-lg md:hidden">
             <div className="flex flex-col gap-3 px-4 py-4">

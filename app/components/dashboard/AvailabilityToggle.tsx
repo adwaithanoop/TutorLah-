@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 const APPLE_EASE = "ease-[cubic-bezier(0.32,0.72,0,1)]";
 
+// toggle switch
 function Switch({
   checked,
   onToggle,
@@ -45,11 +46,13 @@ export default function AvailabilityToggle({
   initialReceivingSos: boolean;
 }) {
   const router = useRouter();
+  // local toggle state, kept in sync with the server
   const [active, setActive] = useState(initialActive);
   const [receivingSos, setReceivingSos] = useState(initialReceivingSos);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
+  // save a toggle change, revert on failure
   async function patch(
     payload: { is_active?: boolean; receiving_sos?: boolean },
     revert: () => void,
@@ -77,6 +80,7 @@ export default function AvailabilityToggle({
     }
   }
 
+  // flip availability
   function toggleActive() {
     if (pending) return;
     const next = !active;
@@ -84,6 +88,7 @@ export default function AvailabilityToggle({
     void patch({ is_active: next }, () => setActive(!next));
   }
 
+  // flip sos receiving
   function toggleSos() {
     if (pending) return;
     const next = !receivingSos;

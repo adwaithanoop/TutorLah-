@@ -33,6 +33,7 @@ interface Affordability {
   shortfall: number;
 }
 
+// status badge label and style
 const STATUS: Record<string, { label: string; className: string }> = {
   accepted: { label: "Booked", className: "bg-emerald-100 text-emerald-700" },
   declined: { label: "Declined", className: "bg-gray-100 text-gray-500" },
@@ -85,9 +86,11 @@ export default function RequestsDashboard({
     };
   }, [router, userId]);
 
+  // split into live vs finished requests
   const pending = requests.filter((r) => r.status === "pending");
   const history = requests.filter((r) => r.status !== "pending");
 
+  // withdraw a pending request
   async function cancel(id: string) {
     setError("");
     const res = await fetch(`/api/booking-requests/${id}`, {
@@ -99,6 +102,7 @@ export default function RequestsDashboard({
     else router.refresh();
   }
 
+  // accept a counter offer time and pay
   async function acceptOffer(offerId: string, start: string, end: string) {
     setError("");
     const res = await fetch(`/api/counter-offers/${offerId}`, {
@@ -134,6 +138,7 @@ export default function RequestsDashboard({
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
+      {/* counter offers */}
       {offers.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Counter offers</h2>
@@ -166,6 +171,7 @@ export default function RequestsDashboard({
         </section>
       )}
 
+      {/* pending requests */}
       <section className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Waiting on tutors</h2>
         {pending.length === 0 ? (
@@ -202,6 +208,7 @@ export default function RequestsDashboard({
         )}
       </section>
 
+      {/* past requests */}
       {history.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400">History</h2>

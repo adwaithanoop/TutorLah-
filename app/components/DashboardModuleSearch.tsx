@@ -15,6 +15,7 @@ export default function DashboardModuleSearch({
   const router = useRouter();
   const [moduleCode, setModuleCode] = useState(initialModule);
 
+  // jump to the dashboard for a module
   function go(code: string) {
     if (!code) return;
     router.push(`/dashboard?module=${encodeURIComponent(code)}`);

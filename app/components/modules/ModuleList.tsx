@@ -15,6 +15,7 @@ export interface TutorModule {
   subjects: { title: string } | null;
 }
 
+// verification status badge
 const STATUS_BADGE: Record<TutorModule["verification_status"], { label: string; className: string }> = {
   verified: { label: "Verified", className: "bg-emerald-50 text-emerald-700" },
   rejected: { label: "Rejected", className: "bg-rose-50 text-rose-700" },
@@ -28,6 +29,7 @@ export default function ModuleList({
   modules: TutorModule[];
   userId: string;
 }) {
+  // empty state
   if (modules.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-sm text-gray-500">
@@ -39,6 +41,7 @@ export default function ModuleList({
   return (
     <ul className="divide-y divide-gray-100 overflow-hidden rounded-2xl bg-white shadow-soft">
       {modules.map((m) => {
+        // can this module still be submitted or resubmitted
         const badge = STATUS_BADGE[m.verification_status];
         const blocked = m.verification_status === "rejected" && !m.allow_resubmit;
         const canResubmit = m.verification_status === "pending" || (m.verification_status === "rejected" && m.allow_resubmit);

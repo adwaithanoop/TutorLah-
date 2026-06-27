@@ -1,6 +1,7 @@
 import type { TutorModule } from "./ModuleList";
 
 export default function VerifiedModuleList({ modules }: { modules: TutorModule[] }) {
+  // empty state
   if (modules.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/40 p-6 text-sm text-indigo-900/60">

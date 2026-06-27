@@ -23,6 +23,7 @@ export default function BookingActions({
   scheduledEnd: string;
 }) {
   const router = useRouter();
+  // action state
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [needsTopUp, setNeedsTopUp] = useState(false);
@@ -37,6 +38,7 @@ export default function BookingActions({
     return () => clearInterval(timer);
   }, [sessionEnded]);
 
+  // run a booking action (pay, complete, cancel, refund)
   async function fire(event: Event) {
     setBusy(true);
     setError("");
@@ -59,6 +61,7 @@ export default function BookingActions({
     router.refresh();
   }
 
+  // build the button list for the current escrow state and role
   const actions: Array<{ event: Event; label: string; primary?: boolean; locked?: boolean }> = [];
   const showReportLink = escrowState === "held" && role === "tutor" && !reportSubmitted;
   if (escrowState === "pending_payment" && role === "student") {

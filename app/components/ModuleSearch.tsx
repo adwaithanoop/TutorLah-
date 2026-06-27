@@ -5,10 +5,12 @@ import { Search } from "lucide-react";
 import { mockTutors, popularModules } from "../lib/mockData";
 
 export default function ModuleSearch() {
+  // query and focus state
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // mock tutors matching the query
   const filteredTutors = query.trim()
     ? mockTutors.filter((t) =>
         t.modules.some((m) =>
@@ -17,6 +19,7 @@ export default function ModuleSearch() {
       )
     : [];
 
+  // module codes matching the query
   const matchedModules = query.trim()
     ? popularModules.filter((m) =>
         m.toLowerCase().includes(query.toLowerCase())
@@ -26,6 +29,7 @@ export default function ModuleSearch() {
   const showDropdown =
     focused && query.trim().length > 0 && (filteredTutors.length > 0 || matchedModules.length > 0);
 
+  // close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (
@@ -39,6 +43,7 @@ export default function ModuleSearch() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  // color the score badge by tier
   const scoreColor = (score: number) => {
     if (score >= 90) return "text-emerald-600 bg-emerald-50";
     if (score >= 80) return "text-amber-600 bg-amber-50";
@@ -74,6 +79,7 @@ export default function ModuleSearch() {
         </Link>
       </div>
 
+      {/* results dropdown */}
       {showDropdown && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 z-40 overflow-hidden">
           {matchedModules.length > 0 && (
@@ -160,6 +166,7 @@ export default function ModuleSearch() {
   );
 }
 
+// sends the query through to the dashboard
 function Link({
   query,
   className,

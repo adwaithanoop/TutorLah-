@@ -1,8 +1,10 @@
 import ModuleSearch from "./ModuleSearch";
 import SiteBackground from "./SiteBackground";
 
+// quick search chips
 const popularModules = ["CS2040S", "CS1231S", "MA1521", "ST2334", "CS2030S"];
 
+// trust numbers under the hero
 const trustStats = [
   { value: "500+", label: "Verified Tutors" },
   { value: "120+", label: "NUS Modules" },

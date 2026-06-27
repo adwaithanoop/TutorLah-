@@ -1,6 +1,7 @@
 import { Star, BadgeCheck, ArrowRight } from "lucide-react";
 import { mockTutors, type Tutor } from "../lib/mockData";
 
+// colored reliability score badge
 function ReliabilityScoreRing({ score }: { score: number }) {
   const isHigh = score >= 90;
   const isMid = score >= 80 && score < 90;
@@ -26,6 +27,7 @@ function ReliabilityScoreRing({ score }: { score: number }) {
   );
 }
 
+// row of 5 stars
 function StarRating({ count }: { count: number }) {
   return (
     <div className="flex items-center gap-1">
@@ -37,6 +39,7 @@ function StarRating({ count }: { count: number }) {
   );
 }
 
+// single tutor card
 function TutorCard({ tutor }: { tutor: Tutor }) {
   return (
     <div className="flex flex-col rounded-xl bg-white p-6 shadow-soft-lg sm:p-7">
@@ -141,6 +144,7 @@ export default function TutorShowcase() {
           ))}
         </div>
 
+        {/* score explainer */}
         <div className="mt-10 rounded-xl bg-white p-6 shadow-soft-lg sm:p-8">
           <p className="mb-1 text-sm font-semibold text-indigo-950">
             How is the Reliability Score calculated?

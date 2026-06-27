@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 
 export default function ReviewActions({ moduleId }: { moduleId: string }) {
   const router = useRouter();
+  // form state for the approve/reject flow
   const [status, setStatus] = useState<"idle" | "working" | "error">("idle");
   const [rejecting, setRejecting] = useState(false);
   const [note, setNote] = useState("");
   const [allowResubmit, setAllowResubmit] = useState(true);
   const [error, setError] = useState("");
 
+  // post the approve or reject decision
   async function submit(approve: boolean, opts?: { note?: string; allowResubmit?: boolean }) {
     setStatus("working");
     setError("");
@@ -32,6 +34,7 @@ export default function ReviewActions({ moduleId }: { moduleId: string }) {
     router.refresh();
   }
 
+  // reject form: reason note + re-upload vs permanent toggle
   if (rejecting) {
     return (
       <div className="w-full max-w-xs">
@@ -84,6 +87,7 @@ export default function ReviewActions({ moduleId }: { moduleId: string }) {
     );
   }
 
+  // approve / reject buttons
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="flex gap-2">

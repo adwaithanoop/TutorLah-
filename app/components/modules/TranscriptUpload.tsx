@@ -19,6 +19,7 @@ export default function TranscriptUpload({
   const [status, setStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
   const [error, setError] = useState("");
 
+  // upload the file, then link it to the module
   async function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -50,6 +51,7 @@ export default function TranscriptUpload({
     router.refresh();
   }
 
+  // button label by state
   const label = status === "uploading" ? "Uploading…" : hasTranscript ? "Replace transcript" : "Upload transcript";
 
   return (

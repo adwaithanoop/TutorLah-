@@ -18,6 +18,7 @@ export interface WeeklyBlock {
   end_minute: number;
 }
 
+// block length limits in minutes
 const MIN_BLOCK = 60;
 const MAX_BLOCK = 180;
 const DAY_END = 1440;
@@ -28,12 +29,14 @@ const LATEST_START = DAY_END - 30;
 
 export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlock[] }) {
   const router = useRouter();
+  // new block form state
   const [weekday, setWeekday] = useState(1);
   const [startMinute, setStartMinute] = useState(16 * 60);
   const [endMinute, setEndMinute] = useState(18 * 60);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // selectable start times
   const startMarks = useMemo(() => gridMarks().filter((m) => m.value <= LATEST_START), []);
 
   // The end can only be 1 to 3 hours after the start in half-hour steps.
@@ -42,12 +45,14 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
     [startMinute],
   );
 
+  // keep the duration when the start time moves
   function changeStart(value: number) {
     const duration = Math.min(MAX_BLOCK, Math.max(MIN_BLOCK, endMinute - startMinute));
     setStartMinute(value);
     setEndMinute(Math.min(MAX_BLOCK_END, value + duration));
   }
 
+  // existing blocks grouped by weekday
   const byDay = useMemo(() => {
     const grouped = new Map<number, WeeklyBlock[]>();
     for (const b of blocks) {
@@ -59,6 +64,7 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
     return grouped;
   }, [blocks]);
 
+  // add a block
   async function add(event: React.FormEvent) {
     event.preventDefault();
     setError("");
@@ -81,6 +87,7 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
     router.refresh();
   }
 
+  // delete a block
   async function remove(id: string) {
     await fetch(`/api/availability/blocks?id=${id}`, { method: "DELETE" });
     router.refresh();
@@ -174,5 +181,6 @@ export default function WeeklyAvailabilityEditor({ blocks }: { blocks: WeeklyBlo
   );
 }
 
+// shared select styling
 const input =
   "rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200";

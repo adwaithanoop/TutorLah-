@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+// footer link columns
 const footerLinks = {
   Platform: [
     { label: "Find a Tutor", href: "/dashboard" },

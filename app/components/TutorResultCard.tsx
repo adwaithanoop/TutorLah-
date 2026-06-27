@@ -1,6 +1,7 @@
 import type { RankedTutor } from "@/lib/tutors/search";
 import Avatar from "@/app/components/Avatar";
 
+// color the score badge by tier
 function scoreStyle(score: number): string {
   if (score >= 90) return "text-emerald-600 bg-emerald-50 border-emerald-200";
   if (score >= 80) return "text-amber-600 bg-amber-50 border-amber-200";
@@ -63,6 +64,7 @@ export default function TutorResultCard({ tutor }: { tutor: RankedTutor }) {
         </span>
       </div>
 
+      {/* book button */}
       <a
         href={`/bookings/new?tutor=${tutor.id}&module=${tutor.moduleCode}`}
         className="mt-4 block rounded-full bg-indigo-600 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-indigo-500"

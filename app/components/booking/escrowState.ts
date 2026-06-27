@@ -1,3 +1,4 @@
+// badge colors per escrow state
 export const ESCROW_STATE_STYLES: Record<string, string> = {
   pending_payment: "bg-amber-50 text-amber-700",
   held: "bg-indigo-50 text-indigo-700",
@@ -7,6 +8,7 @@ export const ESCROW_STATE_STYLES: Record<string, string> = {
   refunded: "bg-rose-50 text-rose-700",
 };
 
+// labels per escrow state
 export const ESCROW_STATE_LABELS: Record<string, string> = {
   pending_payment: "Awaiting payment",
   held: "Payment complete",

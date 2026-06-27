@@ -6,6 +6,7 @@ import { countdownLabel } from "@/lib/scheduling/display";
 export default function SosCountdown({ expiresAt }: { expiresAt: string }) {
   const [now, setNow] = useState(() => Date.now());
 
+  // tick every second
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);

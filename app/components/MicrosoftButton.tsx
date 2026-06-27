@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 export default function MicrosoftButton({ next }: { next?: string }) {
   const [error, setError] = useState("");
 
+  // kick off microsoft oauth
   async function signIn() {
     setError("");
     const params = new URLSearchParams();

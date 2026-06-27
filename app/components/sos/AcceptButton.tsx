@@ -17,6 +17,7 @@ export default function AcceptButton({
   const [error, setError] = useState("");
   const formattedAmount = amount.toFixed(2);
 
+  // accept the bid and hold the funds
   async function accept() {
     setBusy(true);
     setError("");

@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 
 export default function BidForm({ requestId }: { requestId: string }) {
   const router = useRouter();
+  // bid state
   const [amount, setAmount] = useState(30);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // submit a bid
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -28,6 +30,7 @@ export default function BidForm({ requestId }: { requestId: string }) {
     router.refresh();
   }
 
+  // already bid
   if (submitted) {
     return (
       <p className="text-sm font-semibold text-emerald-600">

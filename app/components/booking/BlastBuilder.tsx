@@ -22,8 +22,10 @@ interface Picked {
   price: number;
 }
 
+// session length options in minutes
 const DURATIONS = [60, 90, 120, 150, 180] as const;
 
+// price for a rate and duration
 function priceFor(rate: number, durationMin: number): number {
   return Math.round((rate * durationMin) / 60 * 100) / 100;
 }
@@ -38,6 +40,7 @@ export default function BlastBuilder({
   balance: number;
 }) {
   const router = useRouter();
+  // builder state
   const [duration, setDuration] = useState<number>(60);
   const [openDay, setOpenDay] = useState<Record<string, string>>({});
   const [picked, setPicked] = useState<Record<string, Picked>>({});
@@ -61,10 +64,12 @@ export default function BlastBuilder({
     });
   }, [tutors, duration]);
 
+  // flatten picks for the totals
   const selected = Object.values(picked);
   const maxPrice = selected.reduce((m, s) => Math.max(m, s.price), 0);
   const tutorCount = new Set(selected.map((s) => s.tutorId)).size;
 
+  // add or remove a slot pick
   function toggle(tutor: TutorOption, slot: SlotOption) {
     const key = `${tutor.id}|${slot.start}`;
     setPicked((prev) => {
@@ -82,6 +87,7 @@ export default function BlastBuilder({
     });
   }
 
+  // fire off every picked request at once
   async function send() {
     setError("");
     setBusy(true);
@@ -194,6 +200,7 @@ export default function BlastBuilder({
         </div>
       )}
 
+      {/* sticky summary + send */}
       {selected.length > 0 && (
         <div className="sticky bottom-4 rounded-2xl border border-indigo-100 bg-white p-5 shadow-soft">
           <p className="text-sm text-gray-700">

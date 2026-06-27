@@ -38,6 +38,7 @@ interface RequestGroup {
 const MIN_MS = 60_000;
 const HEADERS = { "content-type": "application/json" };
 
+// status badge label + style
 const STATUS: Record<string, { label: string; className: string }> = {
   accepted: { label: "Accepted", className: "bg-emerald-100 text-emerald-700" },
   declined: { label: "Declined", className: "bg-gray-100 text-gray-500" },
@@ -84,17 +85,20 @@ export default function TutorInbox({
   freeWindows: { start: string; end: string }[];
 }) {
   const router = useRouter();
+  // inbox state
   const [, setTick] = useState(0);
   const [error, setError] = useState("");
   const [countering, setCountering] = useState<string | null>(null);
   const [chosen, setChosen] = useState<Record<string, SlotOption>>({});
   const [openDay, setOpenDay] = useState("");
 
+  // re-render each second so the countdowns tick
   useEffect(() => {
     const timer = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  // refresh when one of this tutor's request rows changes
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
@@ -115,9 +119,11 @@ export default function TutorInbox({
     [freeWindows],
   );
 
+  // group pending requests, finished ones drop to history
   const groups = useMemo(() => groupRequests(requests.filter((r) => r.status === "pending")), [requests]);
   const history = requests.filter((r) => r.status !== "pending");
 
+  // accept one slot
   async function accept(id: string) {
     setError("");
     const res = await fetch(`/api/booking-requests/${id}`, {
@@ -146,6 +152,7 @@ export default function TutorInbox({
     router.refresh();
   }
 
+  // open or close the counter offer panel
   function openCounter(group: RequestGroup) {
     setError("");
     setChosen({});
@@ -153,6 +160,7 @@ export default function TutorInbox({
     setCountering(countering === group.key ? null : group.key);
   }
 
+  // pick up to 3 counter times
   function toggleSlot(slot: SlotOption) {
     setChosen((prev) => {
       const next = { ...prev };
@@ -330,6 +338,7 @@ export default function TutorInbox({
         )}
       </section>
 
+      {/* past requests */}
       {history.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400">History</h2>

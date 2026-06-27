@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 
 type Benefit = { title: string; description: string };
 
+// selling points
 const benefits: Benefit[] = [
   {
     title: "Earn on your own schedule",
@@ -25,6 +26,7 @@ const benefits: Benefit[] = [
   },
 ];
 
+// sample earnings for the demo card
 const mockEarnings = [
   { label: "CS2040S", sessions: 12, rate: 35, color: "bg-indigo-600" },
   { label: "CS2030S", sessions: 8, rate: 32, color: "bg-violet-500" },
@@ -32,6 +34,7 @@ const mockEarnings = [
 ];
 
 export default function ForTutors() {
+  // add up the demo monthly total
   const totalMonthly = mockEarnings.reduce(
     (sum, e) => sum + e.sessions * e.rate,
     0
