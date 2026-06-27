@@ -1,3 +1,5 @@
+// generates a one-time login link for production to log into an account without waiting on the OTP email.
+// node scripts/admin-login-link.mjs <email>
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
 
@@ -11,8 +13,14 @@ function readKey() {
 
 const url = "https://onvovjbuijvxphpxkqsj.supabase.co";
 const key = readKey();
-const email = process.argv[2] ?? "aiden@u.nus.edu";
-const next = process.argv[3] ?? "/tutors";
+const email = process.argv[2];
+const next = process.argv[3] ?? "/dashboard";
+
+if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+  console.error("Usage: node scripts/admin-login-link.mjs <email> [next-path]");
+  console.error("Pass a valid email address to generate a login link for.");
+  process.exit(1);
+}
 
 const supabase = createClient(url, key, { auth: { persistSession: false } });
 

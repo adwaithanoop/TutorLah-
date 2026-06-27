@@ -1,3 +1,5 @@
+// Seeds the subjects table from the public NUSMods module list. Run it once to populate the subject catalog and again whenever a new academic year opens.
+// node scripts/sync-nusmods.mjs
 import { createClient } from "@supabase/supabase-js";
 import { loadEnv } from "./load-env.mjs";
 
@@ -5,7 +7,7 @@ loadEnv();
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const ay = process.env.NUSMODS_AY ?? "2024-2025";
+const ay = process.env.NUSMODS_AY ?? "2025-2026";
 
 if (!url || !key) {
   console.error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
