@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 export default function MessagesRealtime({ myId }: { myId: string }) {
   const router = useRouter();
 
+  // refresh the list when a new message lands
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase

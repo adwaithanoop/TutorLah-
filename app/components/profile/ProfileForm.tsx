@@ -18,11 +18,13 @@ export default function ProfileForm({ initial }: { initial: ProfileFields }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
+  // update one field
   function set<K extends keyof ProfileFields>(key: K, value: ProfileFields[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setStatus("idle");
   }
 
+  // save the profile
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setStatus("saving");
@@ -110,9 +112,11 @@ export default function ProfileForm({ initial }: { initial: ProfileFields }) {
   );
 }
 
+// shared input styling
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200";
 
+// labeled field wrapper
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">

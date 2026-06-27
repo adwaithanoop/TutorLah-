@@ -15,6 +15,7 @@ interface PendingRow {
 export default async function VerificationsPage() {
   const supabase = await createClient();
 
+  // pending transcript submissions, oldest first
   const { data } = await supabase
     .from("tutor_modules")
     .select(
@@ -24,6 +25,7 @@ export default async function VerificationsPage() {
     .order("created_at", { ascending: true })
     .returns<PendingRow[]>();
 
+  // sign each transcript so the reviewer can open it
   const rows = data ?? [];
   const withUrls = await Promise.all(
     rows.map(async (row) => {
@@ -69,6 +71,7 @@ export default async function VerificationsPage() {
         </div>
       </div>
 
+      {/* empty state, otherwise the queue of submissions */}
       {withUrls.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-sm text-gray-500">
           Nothing waiting for review. New submissions will show up here.

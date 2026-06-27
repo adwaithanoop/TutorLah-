@@ -9,6 +9,7 @@ import Testimonials from "./components/Testimonials";
 import CTASection from "./components/CTASection";
 import Footer from "./components/Footer";
 
+// landing page
 export default function Home() {
   return (
     <>

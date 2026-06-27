@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { signedAvatarUrl } from "@/lib/avatars";
 import Avatar from "@/app/components/Avatar";
 
+// allowed image types and size
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -31,11 +32,13 @@ export default function AvatarUpload({
   initialUrl: string | null;
 }) {
   const router = useRouter();
+  // upload state
   const [path, setPath] = useState<string | null>(initialPath);
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialUrl);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
+  // save the avatar path on the profile
   async function persist(nextPath: string | null) {
     const res = await fetch("/api/profile/avatar", {
       method: "PATCH",
@@ -47,6 +50,7 @@ export default function AvatarUpload({
     }
   }
 
+  // validate, upload, then swap out the old photo
   async function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -92,6 +96,7 @@ export default function AvatarUpload({
     router.refresh();
   }
 
+  // clear the photo
   async function handleRemove() {
     if (!path) return;
     setStatus("uploading");

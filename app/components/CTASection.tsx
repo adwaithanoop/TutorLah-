@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+// reassurance checklist
 const guarantees = [
   "NUS email required",
   "Free to sign up",

@@ -19,6 +19,7 @@ export default function Testimonials() {
         </div>
 
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* testimonial cards */}
           {testimonials.map((t) => (
             <figure
               key={t.id}

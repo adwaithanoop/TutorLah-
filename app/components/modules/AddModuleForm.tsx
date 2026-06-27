@@ -10,6 +10,7 @@ export default function AddModuleForm({ userId }: { userId: string }) {
   const router = useRouter();
   const terms = useMemo(() => recentTerms(), []);
   const fileInput = useRef<HTMLInputElement>(null);
+  // form fields
   const [moduleCode, setModuleCode] = useState("");
   const [grade, setGrade] = useState<(typeof GRADES)[number]>("A+");
   const [completedAt, setCompletedAt] = useState("");
@@ -17,6 +18,7 @@ export default function AddModuleForm({ userId }: { userId: string }) {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // upload the transcript, then record the module
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!file) {

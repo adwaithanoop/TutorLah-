@@ -1,3 +1,4 @@
+// headline numbers
 const stats = [
   {
     value: "500+",

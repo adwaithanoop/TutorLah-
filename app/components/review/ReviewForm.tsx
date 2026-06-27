@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 
 export default function ReviewForm({ bookingId }: { bookingId: string }) {
   const router = useRouter();
+  // form state
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // submit the rating and comment
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);

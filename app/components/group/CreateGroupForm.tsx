@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function CreateGroupForm() {
   const router = useRouter();
+  // form fields
   const [moduleCode, setModuleCode] = useState("");
   const [title, setTitle] = useState("");
   const [totalCost, setTotalCost] = useState("");
@@ -15,6 +16,7 @@ export default function CreateGroupForm() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // create the session, then clear the form
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -47,6 +49,7 @@ export default function CreateGroupForm() {
     router.refresh();
   }
 
+  // shared input styling
   const inputClass =
     "w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200";
 

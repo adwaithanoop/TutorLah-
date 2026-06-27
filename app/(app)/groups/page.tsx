@@ -4,6 +4,7 @@ import { GroupPricing } from "@/lib/pricing/pricing";
 import CreateGroupForm from "@/app/components/group/CreateGroupForm";
 import EnrolButton from "@/app/components/group/EnrolButton";
 
+// session time range
 function formatSchedule(start: string, end: string) {
   const opts: Intl.DateTimeFormatOptions = {
     weekday: "short",
@@ -19,6 +20,7 @@ function formatSchedule(start: string, end: string) {
 
 export default async function GroupsPage() {
   const supabase = await createClient();
+  // current user and every open group session
   const [user, { data: sessions }] = await Promise.all([
     getCurrentUser(supabase),
     supabase
@@ -45,6 +47,7 @@ export default async function GroupsPage() {
             <p className="text-sm text-gray-500">No open group sessions right now.</p>
           ) : (
             sessions.map((session) => {
+              // work out seats left and what the next student pays
               const enrolments = session.group_enrolments ?? [];
               const enrolled = enrolments.length;
               const seatsLeft = session.max_participants - enrolled;

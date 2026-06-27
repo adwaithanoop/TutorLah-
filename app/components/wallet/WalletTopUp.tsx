@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+// quick amount buttons
 const PRESETS = [10, 20, 50, 100];
 
 export default function WalletTopUp({ suggested = 0 }: { suggested?: number }) {
@@ -9,6 +10,7 @@ export default function WalletTopUp({ suggested = 0 }: { suggested?: number }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  // start stripe checkout for the amount
   async function topUp() {
     const value = Number(amount);
     if (!Number.isFinite(value) || value <= 0) {

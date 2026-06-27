@@ -5,6 +5,7 @@ type Feature = {
   span: string;
 };
 
+// feature cards
 const features: Feature[] = [
   {
     title: "Verified Module Badges",

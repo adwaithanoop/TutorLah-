@@ -3,11 +3,13 @@ import AuthCard from "@/app/components/AuthCard";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
+// query params can arrive as arrays, grab the single value
 const first = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
 
 export default async function SignupPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
+  // tutor signups get different copy
   const asTutor = first(params.role) === "tutor";
 
   return (

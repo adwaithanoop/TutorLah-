@@ -7,6 +7,7 @@ export interface ModuleOption {
   title: string;
 }
 
+// default input styling
 const INPUT_CLASS =
   "w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200";
 
@@ -23,6 +24,7 @@ export default function ModuleCombobox({
   inputClassName?: string;
   defaultValue?: string;
 }) {
+  // query text plus the committed selection
   const [query, setQuery] = useState(defaultValue);
   const [selected, setSelected] = useState(defaultValue);
   const [open, setOpen] = useState(false);
@@ -30,11 +32,13 @@ export default function ModuleCombobox({
   const ref = useRef<HTMLDivElement>(null);
   const listId = useId();
 
+  // top 8 matches for the query
   const q = query.trim().toLowerCase();
   const matches = (
     q ? modules.filter((m) => m.code.toLowerCase().includes(q) || m.title.toLowerCase().includes(q)) : modules
   ).slice(0, 8);
 
+  // close and reset to the selection when clicking outside
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -46,6 +50,7 @@ export default function ModuleCombobox({
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [selected]);
 
+  // pick a module
   function commit(m: ModuleOption) {
     setSelected(m.code);
     setQuery(m.code);
@@ -53,6 +58,7 @@ export default function ModuleCombobox({
     setOpen(false);
   }
 
+  // typing clears any prior pick
   function handleChange(text: string) {
     setQuery(text);
     setOpen(true);
@@ -63,6 +69,7 @@ export default function ModuleCombobox({
     }
   }
 
+  // arrow keys to move, enter to pick, escape to close
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault();

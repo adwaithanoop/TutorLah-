@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 export default function SosRealtime() {
   const router = useRouter();
 
+  // refresh when any SOS request or bid changes
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase

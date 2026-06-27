@@ -14,6 +14,7 @@ export default function PassportView({
   studentName: string;
   reports: PassportReport[];
 }) {
+  // empty state
   if (reports.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center text-gray-500">
@@ -22,6 +23,7 @@ export default function PassportView({
     );
   }
 
+  // group reports by module
   const byModule = new Map<string, PassportReport[]>();
   for (const r of reports) {
     byModule.set(r.module_code, [...(byModule.get(r.module_code) ?? []), r]);

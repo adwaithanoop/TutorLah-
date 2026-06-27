@@ -17,6 +17,7 @@ export default async function MessagesPage() {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
+  // bookings and messages
   const [{ data: bookingRows }, { data: messageRows }] = await Promise.all([
     supabase
       .from("bookings")
@@ -29,6 +30,7 @@ export default async function MessagesPage() {
       .or(`sender_id.eq.${user!.id},recipient_id.eq.${user!.id}`),
   ]);
 
+  // remove dupe chat partners pulled from bookings
   const partnerMap = new Map<string, ConversationPartner>();
   for (const b of (bookingRows as BookingPair[] | null) ?? []) {
     const isStudent = b.student_id === user!.id;
@@ -43,6 +45,7 @@ export default async function MessagesPage() {
     }
   }
 
+  // roll messages up into one row per conversation
   const conversations = summarizeConversations({
     meId: user!.id,
     partners: [...partnerMap.values()],

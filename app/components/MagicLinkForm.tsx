@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { nusEmailSchema } from "@/lib/validation/auth";
 
+// where we are in the OTP flow
 type Status = "idle" | "sending" | "code" | "verifying" | "error";
 
 export default function MagicLinkForm({
@@ -15,11 +16,13 @@ export default function MagicLinkForm({
   asTutor?: boolean;
 }) {
   const router = useRouter();
+  // form state
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
+  // validate email and send the OTP code
   async function sendCode(event: React.FormEvent) {
     event.preventDefault();
     const parsed = nusEmailSchema.safeParse(email);
@@ -45,6 +48,7 @@ export default function MagicLinkForm({
     setStatus("code");
   }
 
+  // check the code and sign in
   async function verifyCode(event: React.FormEvent) {
     event.preventDefault();
     setStatus("verifying");
@@ -63,6 +67,7 @@ export default function MagicLinkForm({
     router.refresh();
   }
 
+  // code entry step
   if (status === "code" || (status === "verifying") || (status === "error" && token)) {
     return (
       <form onSubmit={verifyCode} className="space-y-3">
@@ -98,6 +103,7 @@ export default function MagicLinkForm({
     );
   }
 
+  // email entry step
   return (
     <form onSubmit={sendCode} className="space-y-3">
       <label htmlFor="email" className="block text-sm font-medium text-gray-700">

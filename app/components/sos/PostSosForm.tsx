@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import ModuleCombobox, { type ModuleOption } from "@/app/components/ModuleCombobox";
 import { durationLabel } from "@/lib/scheduling/display";
 
+// session length options in minutes
 const SOS_DURATIONS = [60, 90, 120, 150, 180];
 
 export default function PostSosForm({ modules }: { modules: ModuleOption[] }) {
   const router = useRouter();
+  // form fields
   const [moduleCode, setModuleCode] = useState("");
   const [description, setDescription] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(60);
@@ -16,6 +18,7 @@ export default function PostSosForm({ modules }: { modules: ModuleOption[] }) {
   const [busy, setBusy] = useState(false);
   const [resetKey, setResetKey] = useState(0);
 
+  // post the SOS, then clear the form
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!moduleCode) {

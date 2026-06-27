@@ -23,8 +23,10 @@ export default function ModeMenu({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  // the mode you can switch to
   const other: Mode = mode === "student" ? "tutor" : "student";
 
+  // close on outside click
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {
@@ -55,6 +57,7 @@ export default function ModeMenu({
         <ChevronDown className="h-4 w-4 text-indigo-900/50" strokeWidth={2} />
       </button>
 
+      {/* dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-60 overflow-hidden rounded-xl border border-indigo-100 bg-white shadow-soft-lg">
           <div className="flex items-center gap-3 border-b border-indigo-100/70 px-4 py-3">

@@ -4,6 +4,7 @@ import ReportForm from "@/app/components/report/ReportForm";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
+// query params can arrive as arrays, grab the single value
 const first = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
 
@@ -11,6 +12,7 @@ export default async function NewReportPage({ searchParams }: { searchParams: Se
   const params = await searchParams;
   const bookingId = first(params.booking);
 
+  // load the booking this report is for
   const supabase = await createClient();
   const { data: booking } = bookingId
     ? await supabase
@@ -20,6 +22,7 @@ export default async function NewReportPage({ searchParams }: { searchParams: Se
         .maybeSingle()
     : { data: null };
 
+  // no valid booking, send them back to bookings
   if (!bookingId || !booking) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">

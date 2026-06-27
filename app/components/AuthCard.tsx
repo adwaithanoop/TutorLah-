@@ -2,11 +2,13 @@ import Link from "next/link";
 import MagicLinkForm from "./MagicLinkForm";
 import SiteBackground from "./SiteBackground";
 
+// error code to message
 const ERROR_MESSAGES: Record<string, string> = {
   domain: "That account isn't an @u.nus.edu address. TutorLah is NUS-only for now.",
   link: "That sign-in link was invalid or has expired. Request a new one below.",
 };
 
+// left panel selling points
 const VALUE_BULLETS = [
   "Verified module badges",
   "5-Factor Reliability Score",
@@ -32,6 +34,7 @@ export default function AuthCard({
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
+      {/* left brand panel, hidden on mobile */}
       <aside className="relative isolate hidden overflow-hidden bg-indigo-950 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <SiteBackground name="auth" overlayClassName="bg-indigo-950/70" />
         <Link href="/" className="relative text-2xl font-extrabold tracking-tight text-white">
@@ -58,6 +61,7 @@ export default function AuthCard({
         </div>
       </aside>
 
+      {/* form panel */}
       <main className="flex min-h-screen items-center justify-center bg-cream px-4 py-16">
         <div className="w-full max-w-md">
           <Link

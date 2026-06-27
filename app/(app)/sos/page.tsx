@@ -13,6 +13,7 @@ import SosRealtime from "@/app/components/sos/SosRealtime";
 import SosCountdown from "@/app/components/sos/SosCountdown";
 import { durationLabel } from "@/lib/scheduling/display";
 
+// labels for each request status
 const STATUS_LABEL: Record<string, string> = {
   open: "Open",
   matched: "Matched",
@@ -24,6 +25,7 @@ export default async function SosPage() {
   const supabase = await createClient();
   const [mode, user] = await Promise.all([getMode(), getCurrentUser(supabase)]);
 
+  // my requests, requests i can help with, and modules for posting a new one
   const [{ myRequests, openForMe, receivingSos }, modules] = await Promise.all([
     loadSosDashboard(supabase, user!.id),
     mode === "student" ? listSubjects() : Promise.resolve([]),
@@ -37,6 +39,7 @@ export default async function SosPage() {
         <RefreshButton />
       </div>
 
+      {/* students post and pick bids, tutors browse and bid */}
       {mode === "student" ? (
         <section className="space-y-4">
           <PostSosForm modules={modules} />

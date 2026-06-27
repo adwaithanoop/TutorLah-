@@ -1,3 +1,4 @@
+// first letters of the name
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "U";
@@ -17,6 +18,7 @@ export default function Avatar({
   className?: string;
   textClass?: string;
 }) {
+  // real photo if we have one, otherwise colored initials
   if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- avatars are remote Supabase objects, served at their stored size

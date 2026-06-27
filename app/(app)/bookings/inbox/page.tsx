@@ -11,9 +11,11 @@ export default async function InboxPage() {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
+  // look two weeks ahead for free slots
   const now = new Date();
   const to = new Date(now.getTime() + RANGE_DAYS * 86_400_000);
 
+  // incoming requests plus this tutor's free windows
   const [{ data: reqRows }, freeWindows] = await Promise.all([
     supabase
       .from("booking_requests")
@@ -24,12 +26,14 @@ export default async function InboxPage() {
     getFreeWindows(createAdminClient(), user!.id, now, to, now),
   ]);
 
+  // look up the student names for those requests
   const studentIds = [...new Set((reqRows ?? []).map((r) => r.student_id))];
   const { data: profiles } = studentIds.length
     ? await supabase.from("profiles").select("id, full_name").in("id", studentIds)
     : { data: [] as { id: string; full_name: string }[] };
   const nameOf = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
 
+  // shape the rows for the inbox component
   const requests: IncomingRequest[] = (reqRows ?? []).map((r) => ({
     id: r.id,
     moduleCode: r.module_code,

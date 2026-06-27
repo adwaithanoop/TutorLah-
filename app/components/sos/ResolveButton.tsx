@@ -8,6 +8,7 @@ export default function ResolveButton({ requestId }: { requestId: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  // close the request
   async function resolve() {
     setBusy(true);
     setError("");

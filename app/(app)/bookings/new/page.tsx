@@ -21,6 +21,7 @@ export default async function NewBookingPage({ searchParams }: { searchParams: S
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
+  // no valid module picked, point them back to search
   if (!moduleParsed.success || !user) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
@@ -39,9 +40,11 @@ export default async function NewBookingPage({ searchParams }: { searchParams: S
   const now = new Date();
   const to = new Date(now.getTime() + RANGE_DAYS * 86_400_000);
 
+  // rank tutors for this module, keep only the bookable ones
   const ranked = await searchTutors(supabase, moduleCode, now);
   const bookable = ranked.filter((t) => t.id !== user.id && t.isActive && t.ratePerHour > 0);
 
+  // wallet balance and each tutor's free windows
   const admin = createAdminClient();
   const [balance, tutorsWithWindows] = await Promise.all([
     getBalance(supabase, user.id),

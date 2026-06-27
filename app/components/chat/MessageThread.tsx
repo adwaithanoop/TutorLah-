@@ -22,11 +22,13 @@ export default function MessageThread({
   otherId: string;
   initial: ChatMessage[];
 }) {
+  // thread state
   const [messages, setMessages] = useState<ChatMessage[]>(initial);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
 
+  // mark this conversation as read
   const markRead = useCallback(() => {
     void fetch("/api/messages/read", {
       method: "POST",
@@ -35,14 +37,17 @@ export default function MessageThread({
     }).catch(() => {});
   }, [otherId]);
 
+  // scroll to the newest message
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // mark read when the thread opens
   useEffect(() => {
     markRead();
   }, [markRead]);
 
+  // live updates for incoming messages
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
@@ -64,6 +69,7 @@ export default function MessageThread({
     };
   }, [myId, otherId, markRead]);
 
+  // send a message, restore the draft if it fails
   async function send(event: React.FormEvent) {
     event.preventDefault();
     const body = draft.trim();

@@ -3,6 +3,7 @@ import { Outfit, Newsreader, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegister from "./components/ServiceWorkerRegister";
 
+// google fonts
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
@@ -19,6 +20,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// page metadata
 export const metadata: Metadata = {
   title: "TutorLah: Peer Tutoring Built for Your NUS Syllabus",
   description:
@@ -46,10 +48,12 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "TutorLah", statusBarStyle: "default" },
 };
 
+// browser ui theme colour
 export const viewport: Viewport = {
   themeColor: "#2b5747",
 };
 
+// root shell that wraps every page
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -61,6 +65,7 @@ export default function RootLayout({
       className={`${outfit.variable} ${newsreader.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* registers the service worker so the app is installable */}
         <ServiceWorkerRegister />
         {children}
       </body>
