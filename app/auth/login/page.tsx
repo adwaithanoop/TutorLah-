@@ -3,9 +3,11 @@ import AuthCard from "@/app/components/AuthCard";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
+// query params can arrive as arrays, grab the single value
 const first = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
 
+// login screen, feeds any next/error from the url into the shared card
 export default async function LoginPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
 

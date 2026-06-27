@@ -11,6 +11,7 @@ export default async function RequestsPage() {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
+  // my requests, any pending counter offers and what i can afford
   const nowIso = new Date().toISOString();
   const [{ data: reqRows }, { data: offerRows }, affordability] = await Promise.all([
     supabase
@@ -28,11 +29,13 @@ export default async function RequestsPage() {
     getAffordability(supabase, user!.id),
   ]);
 
+  // collect the tutor and offer ids we need more data for
   const tutorIds = [
     ...new Set([...(reqRows ?? []).map((r) => r.tutor_id), ...(offerRows ?? []).map((o) => o.tutor_id)]),
   ];
   const offerIds = (offerRows ?? []).map((o) => o.id);
 
+  // tutor names plus the slots attached to each counter offer
   const [{ data: profiles }, { data: slotRows }] = await Promise.all([
     tutorIds.length
       ? supabase.from("profiles").select("id, full_name").in("id", tutorIds)
@@ -47,6 +50,7 @@ export default async function RequestsPage() {
 
   const nameOf = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
 
+  // shape requests and offers for the dashboard
   const requests: RequestView[] = (reqRows ?? []).map((r) => ({
     id: r.id,
     moduleCode: r.module_code,

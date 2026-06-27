@@ -20,6 +20,7 @@ interface BookingView {
 
 export default async function BookingsPage() {
   const supabase = await createClient();
+  // current user and every booking they are part of
   const [user, { data }] = await Promise.all([
     getCurrentUser(supabase),
     supabase
@@ -59,6 +60,7 @@ export default async function BookingsPage() {
       ) : (
         <ul className="space-y-4">
           {bookings.map((b) => {
+            // am i the tutor or the student on this booking
             const role = b.tutor_id === user!.id ? "tutor" : "student";
             const counterparty = role === "tutor" ? b.student?.full_name : b.tutor?.full_name;
             return (

@@ -8,6 +8,7 @@ export default async function SchedulePage() {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
+  // tutor's weekly availability blocks
   const { data: blocks } = await supabase
     .from("availability_blocks")
     .select("id, weekday, start_minute, end_minute")

@@ -5,12 +5,14 @@ export default async function PassportPage({ params }: { params: Promise<{ stude
   const { studentId } = await params;
   const supabase = await createClient();
 
+  // student data
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name")
     .eq("id", studentId)
     .maybeSingle();
 
+  // past session reports, newest first
   const { data: reports } = await supabase
     .from("session_reports")
     .select("id, module_code, misconceptions, summary, created_at, subjects(title)")

@@ -5,6 +5,7 @@ import ProfileForm, { type ProfileFields } from "@/app/components/profile/Profil
 import AvatarUpload from "@/app/components/profile/AvatarUpload";
 import ConnectTelegram from "@/app/components/profile/ConnectTelegram";
 
+// empty profile
 const DEFAULTS: ProfileFields = {
   full_name: "",
   faculty: null,
@@ -17,12 +18,14 @@ export default async function ProfilePage() {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
+  // load saved profile
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name, faculty, year, rate_per_hour, avatar_color, avatar_path")
     .eq("id", user!.id)
     .maybeSingle();
 
+  // use saved values, or fall back to defaults
   const fields: ProfileFields = profile
     ? {
         full_name: profile.full_name,
@@ -35,6 +38,7 @@ export default async function ProfilePage() {
 
   const avatarSrc = await signedAvatarUrl(supabase, profile?.avatar_path);
 
+  // is a telegram account linked yet
   const { data: telegram } = await supabase
     .from("telegram_accounts")
     .select("username")

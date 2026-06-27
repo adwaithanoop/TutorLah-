@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import { getAdminUser } from "@/lib/auth/admin";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // only admins get in
   const admin = await getAdminUser();
   if (!admin) notFound();
 

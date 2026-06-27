@@ -9,16 +9,19 @@ import { backgroundUrl } from "@/lib/backgrounds";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
+// query params can arrive as arrays, grab the single value
 const first = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
 
 export default async function StudentDashboard({ searchParams }: { searchParams: SearchParams }) {
+  // module the student typed into the search box, if any
   const rawModule = first((await searchParams).module) ?? "";
   const parsed = moduleCodeSchema.safeParse(rawModule);
 
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
+  // profile, matching tutors and  full module list
   const [{ data: profile }, tutors, modules] = await Promise.all([
     supabase
       .from("profiles")
@@ -64,6 +67,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
         </div>
       </section>
 
+      {/* searched a module: show tutor results, otherwise the progress stats */}
       {parsed.success ? (
         tutors.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

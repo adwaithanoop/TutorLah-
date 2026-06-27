@@ -21,6 +21,7 @@ export default async function TutorDashboard() {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
+  // profile stats, tutor's modules and next few sessions
   const [{ data: profile }, { data: moduleRows }, { data: upcomingData }] = await Promise.all([
     supabase
       .from("profiles")
@@ -46,6 +47,7 @@ export default async function TutorDashboard() {
       .limit(5),
   ]);
 
+  // split modules into verified vs still under review
   const modules = (moduleRows as TutorModule[] | null) ?? [];
   const verifiedModules = modules.filter((m) => m.verification_status === "verified");
   const reviewModules = modules.filter((m) => m.verification_status !== "verified");
@@ -69,6 +71,7 @@ export default async function TutorDashboard() {
         />
       </header>
 
+      {/* quick stat cards */}
       <section className="mb-10 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-indigo-100 bg-white p-6 shadow-soft">
           <p className="text-sm font-medium text-indigo-900/60">Verified modules</p>
@@ -90,6 +93,7 @@ export default async function TutorDashboard() {
       </section>
 
       <section className="mb-10">
+        {/* next sessions on the calendar */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-indigo-950">Upcoming sessions</h2>
           <Link href="/bookings" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
@@ -130,11 +134,13 @@ export default async function TutorDashboard() {
       </section>
 
       <section className="mb-10">
+        {/* verified modules this tutor can teach */}
         <h2 className="mb-4 text-xl font-bold tracking-tight text-indigo-950">Your modules</h2>
         <VerifiedModuleList modules={verifiedModules} />
       </section>
 
       <section className="mb-10">
+        {/* still under review, add module form */}
         <h2 className="mb-4 text-lg font-bold text-indigo-950">Modules pending verification</h2>
         <div className="space-y-4">
           <ModuleList modules={reviewModules} userId={user!.id} />

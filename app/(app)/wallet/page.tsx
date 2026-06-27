@@ -7,9 +7,11 @@ import WalletTopUp from "@/app/components/wallet/WalletTopUp";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
+// query params can arrive as arrays, grab the single value
 const first = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
 
+// labels and colors for each transaction type
 const KIND_LABELS: Record<string, string> = {
   topup: "Top-up",
   escrow_hold: "Held for booking",
@@ -34,11 +36,13 @@ export default async function WalletPage({ searchParams }: { searchParams: Searc
   const sessionId = first(params.session_id);
   if (sessionId) await creditTopupBySession(sessionId);
 
+  // current balance and recent activity
   const [balance, transactions] = await Promise.all([
     getBalance(supabase, user!.id),
     getRecentTransactions(supabase, user!.id),
   ]);
 
+  // suggest a top up amount if they landed here short on funds
   const need = Number(first(params.need) ?? "0");
   const suggested = suggestTopUp(Number.isFinite(need) ? need : 0, balance);
   const topupResult = first(params.topup);

@@ -18,6 +18,7 @@ import ModeMenu from "@/app/components/ModeMenu";
 import SiteBackground from "@/app/components/SiteBackground";
 import { getMode } from "./mode";
 
+// nav links shown in both student and tutor mode
 const SHARED_NAV = [
   { href: "/sos", label: "SOS", icon: Zap },
   { href: "/groups", label: "Groups", icon: Users },
@@ -30,8 +31,10 @@ const PASSPORT_NAV = { href: "/passport", label: "Passport", icon: IdCard };
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
+  // current mode (student or tutor) and the logged in user
   const [mode, user] = await Promise.all([getMode(), getCurrentUser(supabase)]);
 
+  // profile, admin check and wallet balance
   const [{ data: profile }, { data: adminRow }, balance] = await Promise.all([
     supabase
       .from("profiles")
@@ -43,11 +46,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ]);
   const isAdmin = !!adminRow;
 
+  // values the header needs to render
   const name = profile?.full_name?.trim() || user?.email?.split("@")[0] || "You";
   const avatarColor = profile?.avatar_color ?? "bg-indigo-500";
   const avatarSrc = await signedAvatarUrl(supabase, profile?.avatar_path);
   const home = mode === "tutor" ? "/dashboard/tutor" : "/dashboard";
 
+  // nav swaps the home link and adds extras depending on mode
   const homeNav =
     mode === "tutor"
       ? { href: home, label: "Dashboard", icon: LayoutDashboard }
@@ -81,6 +86,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 <span className="hidden lg:inline">{label}</span>
               </Link>
             ))}
+            {/* admin only link */}
             {isAdmin && (
               <Link
                 href="/admin/verifications"
