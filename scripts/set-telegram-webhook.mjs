@@ -1,3 +1,5 @@
+// Points the Telegram bot at a deployment's webhook endpoint. Run it once per environment after deploying, or again if the public URL changes.
+// node scripts/set-telegram-webhook.mjs <public-base-url>
 import { loadEnv } from "./load-env.mjs";
 
 loadEnv();

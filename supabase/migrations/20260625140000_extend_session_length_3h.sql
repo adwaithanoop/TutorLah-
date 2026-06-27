@@ -2,7 +2,8 @@
 -- Availability blocks grow to match, so a tutor can open a single 3 hour window instead
 -- of stitching two adjacent blocks together.
 
-alter table availability_blocks drop constraint availability_blocks_check1;
+alter table availability_blocks drop constraint if exists availability_blocks_check1;
+alter table availability_blocks drop constraint if exists availability_blocks_duration_check;
 
 alter table availability_blocks
   add constraint availability_blocks_duration_check
