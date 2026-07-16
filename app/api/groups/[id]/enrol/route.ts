@@ -12,7 +12,8 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
   const { data, error } = await supabase.rpc("enrol_in_group", { p_group: id });
 
   if (error) {
-    const conflict = error.code === "23505" || /full|closed|already enrolled/i.test(error.message);
+    const conflict =
+      error.code === "23505" || /full|closed|already enrolled|insufficient wallet balance/i.test(error.message);
     return NextResponse.json({ error: error.message }, { status: conflict ? 409 : 500 });
   }
   return NextResponse.json({ price_charged: data });

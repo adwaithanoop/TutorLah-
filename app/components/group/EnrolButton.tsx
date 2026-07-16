@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function EnrolButton({ groupId, disabled }: { groupId: string; disabled?: boolean }) {
   const router = useRouter();
@@ -37,7 +38,19 @@ export default function EnrolButton({ groupId, disabled }: { groupId: string; di
       >
         {busy ? "Enrolling…" : "Enrol"}
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && (
+        <span className="text-xs text-red-600">
+          {error}
+          {/insufficient wallet balance/i.test(error) && (
+            <>
+              {" "}
+              <Link href="/wallet" className="font-semibold underline">
+                Top up
+              </Link>
+            </>
+          )}
+        </span>
+      )}
     </div>
   );
 }
