@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/user";
 import { GroupPricing } from "@/lib/pricing/pricing";
 import CreateGroupForm from "@/app/components/group/CreateGroupForm";
 import EnrolButton from "@/app/components/group/EnrolButton";
+import CancelGroupButton from "@/app/components/group/CancelGroupButton";
 
 // session time range
 function formatSchedule(start: string, end: string) {
@@ -52,6 +53,7 @@ export default async function GroupsPage() {
               const enrolled = enrolments.length;
               const seatsLeft = session.max_participants - enrolled;
               const alreadyEnrolled = enrolments.some((e) => e.student_id === user!.id);
+              const isHost = session.tutor_id === user!.id;
               const isFull = seatsLeft <= 0;
               const nextPrice = new GroupPricing(
                 session.total_cost,
@@ -78,7 +80,9 @@ export default async function GroupsPage() {
                         {seatsLeft > 0 ? `${seatsLeft} seat${seatsLeft === 1 ? "" : "s"} left` : "Full"}
                       </span>
                     </div>
-                    {alreadyEnrolled ? (
+                    {isHost ? (
+                      <CancelGroupButton groupId={session.id} />
+                    ) : alreadyEnrolled ? (
                       <span className="text-xs font-semibold text-emerald-600">Enrolled</span>
                     ) : (
                       <EnrolButton groupId={session.id} disabled={isFull} />

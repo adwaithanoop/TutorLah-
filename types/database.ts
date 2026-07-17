@@ -269,6 +269,7 @@ export type Database = {
       group_enrolments: {
         Row: {
           created_at: string
+          escrow_state: string
           group_session_id: string
           id: string
           price_charged: number
@@ -276,6 +277,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          escrow_state?: string
           group_session_id: string
           id?: string
           price_charged: number
@@ -283,6 +285,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          escrow_state?: string
           group_session_id?: string
           id?: string
           price_charged?: number
@@ -917,6 +920,7 @@ export type Database = {
           amount: number
           booking_id: string | null
           created_at: string
+          group_enrolment_id: string | null
           id: string
           kind: Database["public"]["Enums"]["wallet_txn_kind"]
           wallet_id: string
@@ -925,6 +929,7 @@ export type Database = {
           amount: number
           booking_id?: string | null
           created_at?: string
+          group_enrolment_id?: string | null
           id?: string
           kind: Database["public"]["Enums"]["wallet_txn_kind"]
           wallet_id: string
@@ -933,6 +938,7 @@ export type Database = {
           amount?: number
           booking_id?: string | null
           created_at?: string
+          group_enrolment_id?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["wallet_txn_kind"]
           wallet_id?: string
@@ -943,6 +949,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_group_enrolment_id_fkey"
+            columns: ["group_enrolment_id"]
+            isOneToOne: false
+            referencedRelation: "group_enrolments"
             referencedColumns: ["id"]
           },
           {
@@ -1076,6 +1089,7 @@ export type Database = {
         }
         Returns: Database["public"]["Tables"]["bookings"]["Row"]
       }
+      cancel_group_session: { Args: { p_group: string }; Returns: undefined }
       enrol_in_group: { Args: { p_group: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
       is_nus: { Args: never; Returns: boolean }
