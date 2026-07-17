@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ArrowLeftRight, ChevronDown, GraduationCap, LogOut, UserRound, Wallet } from "lucide-react";
 import { switchMode } from "@/app/(app)/actions";
 import { signOut } from "@/app/auth/actions";
 import type { Mode } from "@/app/(app)/mode";
 import Avatar from "@/app/components/Avatar";
+import ModeSwitchOverlay from "@/app/components/ModeSwitchOverlay";
 
 export default function ModeMenu({
   name,
@@ -22,6 +24,7 @@ export default function ModeMenu({
   balance: number;
 }) {
   const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
   // the mode you can switch to
   const other: Mode = mode === "student" ? "tutor" : "student";
@@ -35,6 +38,16 @@ export default function ModeMenu({
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, [open]);
+
+  useEffect(() => {
+    if (!isPending) return;
+    const shell = document.getElementById("app-shell");
+    if (!shell) return;
+    shell.inert = true;
+    return () => {
+      shell.inert = false;
+    };
+  }, [isPending]);
 
   return (
     <div className="relative" ref={ref}>
@@ -77,8 +90,12 @@ export default function ModeMenu({
 
           <button
             type="button"
-            onClick={() => switchMode(other)}
-            className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-indigo-900 transition-colors hover:bg-indigo-50"
+            onClick={() => {
+              setOpen(false);
+              startTransition(() => switchMode(other));
+            }}
+            disabled={isPending}
+            className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-indigo-900 transition-colors hover:bg-indigo-50 disabled:opacity-60"
           >
             {other === "tutor" ? (
               <GraduationCap className="h-4 w-4 text-indigo-600" strokeWidth={2} />
@@ -117,6 +134,10 @@ export default function ModeMenu({
           </form>
         </div>
       )}
+
+      {/* the switch is a server action, so route level loading screens never fire;
+          portalled past the blurred header, which would otherwise trap fixed children */}
+      {isPending && createPortal(<ModeSwitchOverlay />, document.body)}
     </div>
   );
 }
