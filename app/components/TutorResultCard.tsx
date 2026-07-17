@@ -1,12 +1,6 @@
 import type { RankedTutor } from "@/lib/tutors/search";
 import Avatar from "@/app/components/Avatar";
-
-// color the score badge by tier
-function scoreStyle(score: number): string {
-  if (score >= 90) return "text-emerald-600 bg-emerald-50 border-emerald-200";
-  if (score >= 80) return "text-amber-600 bg-amber-50 border-amber-200";
-  return "text-orange-600 bg-orange-50 border-orange-200";
-}
+import ScoreBadge from "@/app/components/ScoreBadge";
 
 export default function TutorResultCard({ tutor }: { tutor: RankedTutor }) {
   return (
@@ -37,9 +31,7 @@ export default function TutorResultCard({ tutor }: { tutor: RankedTutor }) {
             </p>
           </div>
         </div>
-        <span className={`rounded-lg border px-2 py-1 text-sm font-bold ${scoreStyle(tutor.reliabilityScore)}`}>
-          {tutor.reliabilityScore}
-        </span>
+        <ScoreBadge score={tutor.reliabilityScore} breakdown={tutor.breakdown} />
       </div>
 
       <div className="mb-4 flex items-center gap-2">
