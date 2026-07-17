@@ -12,6 +12,14 @@ export interface ReliabilityInput {
 
 export const MS_PER_YEAR = 365.25 * 24 * 60 * 60 * 1000;
 
+export type ScoreComponentKey = "satisfaction" | "completion" | "verification" | "grade" | "recency";
+
+export interface ScoreBreakdownEntry {
+  key: ScoreComponentKey;
+  earned: number;
+  max: number;
+}
+
 export class ReliabilityScore {
   private static readonly WEIGHTS = {
     satisfaction: 0.3,
@@ -48,6 +56,24 @@ export class ReliabilityScore {
       w.grade * this.grade +
       w.recency * this.recency;
     return Math.round(weighted * 1000) / 10;
+  }
+
+  // per factor points, same rounding as value, so the UI can show how the
+  // composite is built up
+  get breakdown(): ScoreBreakdownEntry[] {
+    const w = ReliabilityScore.WEIGHTS;
+    const parts: Record<ScoreComponentKey, number> = {
+      satisfaction: this.satisfaction,
+      completion: this.completion,
+      verification: this.verification,
+      grade: this.grade,
+      recency: this.recency,
+    };
+    return (Object.keys(w) as ScoreComponentKey[]).map((key) => ({
+      key,
+      earned: Math.round(w[key] * parts[key] * 1000) / 10,
+      max: w[key] * 100,
+    }));
   }
 
   private get satisfaction(): number {

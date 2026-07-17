@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
-import { ReliabilityScore, type Grade } from "@/lib/scoring/reliability";
+import { ReliabilityScore, type Grade, type ScoreBreakdownEntry } from "@/lib/scoring/reliability";
 import { signedAvatarUrls } from "@/lib/avatars";
 
 export interface RankedTutor {
@@ -12,6 +12,7 @@ export interface RankedTutor {
   moduleCode: string;
   grade: Grade;
   reliabilityScore: number;
+  breakdown: ScoreBreakdownEntry[];
   ratePerHour: number;
   isVerified: boolean;
   isActive: boolean;
@@ -69,7 +70,7 @@ export async function searchTutors(
 
   return rows
     .map((row) => {
-      const reliabilityScore = new ReliabilityScore(
+      const score = new ReliabilityScore(
         {
           averageRating: row.avg_rating,
           ratingCount: row.rating_count,
@@ -80,7 +81,7 @@ export async function searchTutors(
           moduleCompletedAt: new Date(row.completed_at),
         },
         now,
-      ).value;
+      );
 
       return {
         id: row.tutor_id,
@@ -90,7 +91,8 @@ export async function searchTutors(
         faculty: row.faculty ?? "",
         moduleCode,
         grade: row.grade,
-        reliabilityScore,
+        reliabilityScore: score.value,
+        breakdown: score.breakdown,
         ratePerHour: Number(row.rate_per_hour),
         isVerified: row.is_verified,
         isActive: row.is_active,

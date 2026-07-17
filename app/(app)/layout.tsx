@@ -65,7 +65,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="relative isolate min-h-screen bg-cream">
+    <div id="app-shell" className="relative isolate min-h-screen bg-cream">
       <SiteBackground
         name={mode === "tutor" ? "appTutor" : "appStudent"}
         overlayClassName="bg-cream/85"

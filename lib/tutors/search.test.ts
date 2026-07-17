@@ -104,7 +104,7 @@ describe("searchTutors", () => {
         moduleCompletedAt: new Date("2025-12-01"),
       },
       NOW,
-    ).value;
+    );
 
     const [tutor] = await searchTutors(
       mockClient([
@@ -122,7 +122,8 @@ describe("searchTutors", () => {
       "CS2040S",
       NOW,
     );
-    expect(tutor.reliabilityScore).toBe(expected);
+    expect(tutor.reliabilityScore).toBe(expected.value);
+    expect(tutor.breakdown).toEqual(expected.breakdown);
     expect(tutor.initials).toBe("AT");
     expect(tutor.ratePerHour).toBe(30);
     expect(tutor.grade).toBe("A+");

@@ -78,3 +78,49 @@ describe("ReliabilityScore", () => {
     expect(score({ ...ISO_BASE, sessionsCompleted: 1, sessionsBooked: 3 })).toBe(23.3);
   });
 });
+
+describe("breakdown", () => {
+  const breakdown = (input: ReliabilityInput) => new ReliabilityScore(input, NOW).breakdown;
+
+  test("a perfect tutor earns the full weight of every factor", () => {
+    const entries = breakdown({
+      averageRating: 5,
+      ratingCount: 50,
+      sessionsCompleted: 50,
+      sessionsBooked: 50,
+      isVerified: true,
+      grade: "A+",
+      moduleCompletedAt: NOW,
+    });
+    expect(entries.map((e) => e.max)).toEqual([30, 25, 20, 15, 10]);
+    for (const entry of entries) {
+      expect(entry.earned).toBe(entry.max);
+    }
+  });
+
+  test("the isolation fixture earns points from its grade alone", () => {
+    expect(breakdown(ISO_BASE).map((e) => e.earned)).toEqual([0, 0, 0, 15, 0]);
+  });
+
+  test("per factor points use the same one decimal rounding as the composite", () => {
+    const entries = breakdown({ ...ISO_BASE, sessionsCompleted: 1, sessionsBooked: 3 });
+    expect(entries.find((e) => e.key === "completion")?.earned).toBe(8.3);
+    const sum = entries.reduce((total, e) => total + e.earned, 0);
+    expect(sum).toBeCloseTo(23.3, 5);
+  });
+
+  test("the composite remains independently rounded when component rounding drifts", () => {
+    const input: ReliabilityInput = {
+      averageRating: 4.9,
+      ratingCount: 42,
+      sessionsCompleted: 47,
+      sessionsBooked: 49,
+      isVerified: true,
+      grade: "A+",
+      moduleCompletedAt: new Date("2025-12-01"),
+    };
+    const score = new ReliabilityScore(input, NOW);
+    const roundedSum = score.breakdown.reduce((total, entry) => total + entry.earned, 0);
+    expect(roundedSum).not.toBe(score.value);
+  });
+});
