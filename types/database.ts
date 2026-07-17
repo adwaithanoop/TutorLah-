@@ -665,6 +665,7 @@ export type Database = {
       }
       sos_requests: {
         Row: {
+          booking_id: string | null
           created_at: string
           description: string
           duration_minutes: number
@@ -675,6 +676,7 @@ export type Database = {
           student_id: string
         }
         Insert: {
+          booking_id?: string | null
           created_at?: string
           description: string
           duration_minutes: number
@@ -685,6 +687,7 @@ export type Database = {
           student_id: string
         }
         Update: {
+          booking_id?: string | null
           created_at?: string
           description?: string
           duration_minutes?: number
@@ -695,6 +698,13 @@ export type Database = {
           student_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "sos_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sos_requests_module_code_fkey"
             columns: ["module_code"]

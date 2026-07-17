@@ -33,7 +33,7 @@ export default async function SosPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
-      <SosRealtime />
+      <SosRealtime userId={user!.id} />
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">SOS: urgent help</h1>
         <RefreshButton />
@@ -84,6 +84,21 @@ export default async function SosPage() {
                     </div>
                   ))}
                 </div>
+                {req.status === "matched" && req.booking?.escrowState === "released" && (
+                  <div className="mt-3 flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2">
+                    <p className="text-xs text-emerald-700">How was your session?</p>
+                    {req.booking.reviewed ? (
+                      <span className="text-xs font-semibold text-emerald-600">Review submitted</span>
+                    ) : (
+                      <Link
+                        href={`/reviews/new?booking=${req.booking.id}`}
+                        className="rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                      >
+                        Leave a review
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
             ))
           )}

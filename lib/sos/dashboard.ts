@@ -21,6 +21,7 @@ export interface MyRequest {
   status: string;
   durationMinutes: number;
   expiresAt: string;
+  booking: { id: string; escrowState: string; reviewed: boolean } | null;
   bids: DashboardBid[];
 }
 
@@ -62,6 +63,7 @@ interface RawRequest {
   status: string;
   duration_minutes: number;
   expires_at: string;
+  booking: { id: string; escrow_state: string; reviews: { id: string }[] } | null;
   sos_bids: RawBid[];
 }
 
@@ -87,13 +89,14 @@ export async function loadSosDashboard(
   const myVerifiedModules = (vmods ?? []).map((m) => m.module_code);
   const receivingSos = (prof?.is_active ?? false) && (prof?.receiving_sos ?? false);
 
-  const { data: rawMine } = await supabase
+  const { data: rawMine, error: mineError } = await supabase
     .from("sos_requests")
     .select(
-      "id, module_code, description, status, duration_minutes, expires_at, sos_bids(id, amount, status, tutor_id, tutor:profiles!sos_bids_tutor_id_fkey(full_name, avg_rating, rating_count, sessions_completed, sessions_booked))",
+      "id, module_code, description, status, duration_minutes, expires_at, booking:bookings(id, escrow_state, reviews(id)), sos_bids(id, amount, status, tutor_id, tutor:profiles!sos_bids_tutor_id_fkey(full_name, avg_rating, rating_count, sessions_completed, sessions_booked))",
     )
     .eq("student_id", userId)
     .order("created_at", { ascending: false });
+  if (mineError) throw mineError;
   const mine = (rawMine as RawRequest[] | null) ?? [];
 
   const bidderModules = await loadBidderModules(supabase, mine);
@@ -128,6 +131,9 @@ export async function loadSosDashboard(
       status: req.status,
       durationMinutes: req.duration_minutes,
       expiresAt: req.expires_at,
+      booking: req.booking
+        ? { id: req.booking.id, escrowState: req.booking.escrow_state, reviewed: req.booking.reviews.length > 0 }
+        : null,
       bids: ranked.map((r) => {
         const s = byId.get(r.id)!;
         return {
