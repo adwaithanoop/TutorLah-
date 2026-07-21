@@ -1,29 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/user";
-import { GroupPricing } from "@/lib/pricing/pricing";
+import { getMode } from "@/app/(app)/mode";
+import { listSubjects } from "@/lib/modules/catalog";
 import CreateGroupForm from "@/app/components/group/CreateGroupForm";
-import EnrolButton from "@/app/components/group/EnrolButton";
-import CancelGroupButton from "@/app/components/group/CancelGroupButton";
-
-// session time range
-function formatSchedule(start: string, end: string) {
-  const opts: Intl.DateTimeFormatOptions = {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  };
-  const s = new Date(start);
-  const e = new Date(end);
-  return `${s.toLocaleString("en-SG", opts)} to ${e.toLocaleTimeString("en-SG", { hour: "2-digit", minute: "2-digit" })}`;
-}
+import GroupSessionCard from "@/app/components/group/GroupSessionCard";
+import GroupsRealtime from "@/app/components/group/GroupsRealtime";
+import CreateLobbyForm from "@/app/components/lobby/CreateLobbyForm";
+import LobbyCard from "@/app/components/lobby/LobbyCard";
 
 export default async function GroupsPage() {
   const supabase = await createClient();
-  // current user and every open group session
-  const [user, { data: sessions }] = await Promise.all([
+  // mode decides which half of the page renders; modules feed both create forms
+  const [mode, user, modules, { data: sessions }] = await Promise.all([
+    getMode(),
     getCurrentUser(supabase),
+    listSubjects(),
     supabase
       .from("group_sessions")
       .select(
@@ -33,67 +24,119 @@ export default async function GroupsPage() {
       .order("scheduled_start", { ascending: true }),
   ]);
 
+  // lobbies are a student mode feature until tutors get their bidding view
+  const { data: lobbies } =
+    mode === "student"
+      ? await supabase
+          .from("group_lobbies")
+          .select(
+            "id, title, module_code, budget, min_participants, max_participants, scheduled_start, scheduled_end, deadline, creator_id, creator:profiles!group_lobbies_creator_id_fkey(full_name), lobby_members(student_id, student:profiles!lobby_members_student_id_fkey(full_name, avatar_color))",
+          )
+          .eq("status", "open")
+          .order("scheduled_start", { ascending: true })
+      : { data: null };
+
+  const sessionCards =
+    !sessions || sessions.length === 0 ? (
+      <p className="text-sm text-gray-500">No open group sessions right now.</p>
+    ) : (
+      sessions.map((session) => {
+        const enrolments = session.group_enrolments ?? [];
+        const host = Array.isArray(session.tutor) ? session.tutor[0] : session.tutor;
+        return (
+          <GroupSessionCard
+            key={session.id}
+            id={session.id}
+            title={session.title}
+            moduleCode={session.module_code}
+            hostName={host?.full_name ?? "Unknown host"}
+            enrolled={enrolments.length}
+            maxParticipants={session.max_participants}
+            totalCost={session.total_cost}
+            floorPerStudent={session.floor_per_student}
+            scheduledStart={session.scheduled_start}
+            scheduledEnd={session.scheduled_end}
+            isHost={session.tutor_id === user!.id}
+            alreadyEnrolled={enrolments.some((e) => e.student_id === user!.id)}
+            canEnrol={mode === "student"}
+          />
+        );
+      })
+    );
+
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="mb-6 text-3xl font-bold text-gray-900">Group sessions</h1>
+      <GroupsRealtime />
+      {mode === "tutor" ? (
+        <>
+          <h1 className="mb-1 text-3xl font-bold text-gray-900">Group sessions</h1>
+          <p className="mb-6 text-sm text-gray-500">Host a session and students enrol as seats fill.</p>
+          <div className="grid gap-8 lg:grid-cols-2">
+            <section>
+              <CreateGroupForm modules={modules} />
+            </section>
+            <section className="space-y-4">
+              <h2 className="text-lg font-bold text-gray-900">Open sessions</h2>
+              {sessionCards}
+            </section>
+          </div>
+        </>
+      ) : (
+        <>
+          <h1 className="mb-1 text-3xl font-bold text-gray-900">Student lobbies</h1>
+          <p className="mb-6 text-sm text-gray-500">
+            Pool a budget with classmates. Tutors will bid to teach your group.
+          </p>
+          <div className="grid gap-8 lg:grid-cols-2">
+            <section>
+              <CreateLobbyForm modules={modules} />
+            </section>
+            <section className="space-y-4">
+              <h2 className="text-lg font-bold text-gray-900">Open lobbies</h2>
+              {!lobbies || lobbies.length === 0 ? (
+                <p className="text-sm text-gray-500">No open lobbies right now.</p>
+              ) : (
+                lobbies.map((lobby) => {
+                  const members = lobby.lobby_members ?? [];
+                  const creator = Array.isArray(lobby.creator) ? lobby.creator[0] : lobby.creator;
+                  const memberList = members.map((m) => {
+                    const profile = Array.isArray(m.student) ? m.student[0] : m.student;
+                    return {
+                      id: m.student_id,
+                      name: profile?.full_name ?? "Student",
+                      avatarColor: profile?.avatar_color ?? "bg-indigo-500",
+                    };
+                  });
+                  return (
+                    <LobbyCard
+                      key={lobby.id}
+                      id={lobby.id}
+                      title={lobby.title}
+                      moduleCode={lobby.module_code}
+                      creatorName={creator?.full_name ?? "Unknown student"}
+                      members={memberList}
+                      minParticipants={lobby.min_participants}
+                      maxParticipants={lobby.max_participants}
+                      budget={lobby.budget}
+                      scheduledStart={lobby.scheduled_start}
+                      scheduledEnd={lobby.scheduled_end}
+                      deadline={lobby.deadline}
+                      isCreator={lobby.creator_id === user!.id}
+                      isMember={members.some((m) => m.student_id === user!.id)}
+                    />
+                  );
+                })
+              )}
+            </section>
+          </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <section>
-          <CreateGroupForm />
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-lg font-bold text-gray-900">Open sessions</h2>
-          {!sessions || sessions.length === 0 ? (
-            <p className="text-sm text-gray-500">No open group sessions right now.</p>
-          ) : (
-            sessions.map((session) => {
-              // work out seats left and what the next student pays
-              const enrolments = session.group_enrolments ?? [];
-              const enrolled = enrolments.length;
-              const seatsLeft = session.max_participants - enrolled;
-              const alreadyEnrolled = enrolments.some((e) => e.student_id === user!.id);
-              const isHost = session.tutor_id === user!.id;
-              const isFull = seatsLeft <= 0;
-              const nextPrice = new GroupPricing(
-                session.total_cost,
-                enrolled + 1,
-                session.floor_per_student,
-              ).quote();
-              const host = Array.isArray(session.tutor) ? session.tutor[0] : session.tutor;
-
-              return (
-                <div key={session.id} className="rounded-2xl bg-white shadow-soft p-5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-semibold text-indigo-700">{session.module_code}</span>
-                    <span className="text-xs text-gray-400">{host?.full_name ?? "Unknown host"}</span>
-                  </div>
-                  <h3 className="mt-1 font-semibold text-gray-900">{session.title}</h3>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {formatSchedule(session.scheduled_start, session.scheduled_end)}
-                  </p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="text-sm">
-                      <span className="font-semibold text-gray-900">${nextPrice}</span>
-                      <span className="ml-1 text-gray-500">/ student next</span>
-                      <span className="ml-3 text-xs text-gray-400">
-                        {seatsLeft > 0 ? `${seatsLeft} seat${seatsLeft === 1 ? "" : "s"} left` : "Full"}
-                      </span>
-                    </div>
-                    {isHost ? (
-                      <CancelGroupButton groupId={session.id} />
-                    ) : alreadyEnrolled ? (
-                      <span className="text-xs font-semibold text-emerald-600">Enrolled</span>
-                    ) : (
-                      <EnrolButton groupId={session.id} disabled={isFull} />
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </section>
-      </div>
+          <h1 className="mb-1 mt-12 text-3xl font-bold text-gray-900">Group sessions</h1>
+          <p className="mb-6 text-sm text-gray-500">
+            Hosted by tutors. Grab a seat and the price per student drops as more join.
+          </p>
+          <div className="grid gap-4 lg:grid-cols-2">{sessionCards}</div>
+        </>
+      )}
     </main>
   );
 }

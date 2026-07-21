@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ModuleCombobox, { type ModuleOption } from "@/app/components/ModuleCombobox";
 
-export default function CreateGroupForm() {
+export default function CreateGroupForm({ modules }: { modules: ModuleOption[] }) {
   const router = useRouter();
   // form fields
   const [moduleCode, setModuleCode] = useState("");
@@ -15,10 +16,15 @@ export default function CreateGroupForm() {
   const [end, setEnd] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   // create the session, then clear the form
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (!moduleCode) {
+      setError("Pick a module from the list");
+      return;
+    }
     setBusy(true);
     setError("");
     const res = await fetch("/api/groups", {
@@ -46,6 +52,7 @@ export default function CreateGroupForm() {
     setFloor("");
     setStart("");
     setEnd("");
+    setResetKey((k) => k + 1);
     router.refresh();
   }
 
@@ -63,12 +70,11 @@ export default function CreateGroupForm() {
         required
         className={inputClass}
       />
-      <input
-        value={moduleCode}
-        onChange={(e) => setModuleCode(e.target.value)}
-        placeholder="Module code (e.g. CS2040S)"
-        required
-        className={`${inputClass} font-mono uppercase`}
+      <ModuleCombobox
+        key={resetKey}
+        modules={modules}
+        onChange={setModuleCode}
+        placeholder="Search a module - code or title"
       />
       <div className="grid grid-cols-3 gap-3">
         <input
@@ -128,7 +134,7 @@ export default function CreateGroupForm() {
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
-        disabled={busy}
+        disabled={busy || !moduleCode}
         className="rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
       >
         {busy ? "Creating…" : "Create session"}
