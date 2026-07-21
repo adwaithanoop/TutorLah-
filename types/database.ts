@@ -308,6 +308,66 @@ export type Database = {
           },
         ]
       }
+      group_lobbies: {
+        Row: {
+          budget: number
+          created_at: string
+          creator_id: string
+          deadline: string
+          id: string
+          max_participants: number
+          min_participants: number
+          module_code: string
+          scheduled_end: string
+          scheduled_start: string
+          status: string
+          title: string
+        }
+        Insert: {
+          budget: number
+          created_at?: string
+          creator_id: string
+          deadline: string
+          id?: string
+          max_participants: number
+          min_participants: number
+          module_code: string
+          scheduled_end: string
+          scheduled_start: string
+          status?: string
+          title: string
+        }
+        Update: {
+          budget?: number
+          created_at?: string
+          creator_id?: string
+          deadline?: string
+          id?: string
+          max_participants?: number
+          min_participants?: number
+          module_code?: string
+          scheduled_end?: string
+          scheduled_start?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_lobbies_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_lobbies_module_code_fkey"
+            columns: ["module_code"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["module_code"]
+          },
+        ]
+      }
       group_sessions: {
         Row: {
           created_at: string
@@ -359,6 +419,84 @@ export type Database = {
           {
             foreignKeyName: "group_sessions_tutor_id_fkey"
             columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lobby_bids: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          lobby_id: string
+          status: Database["public"]["Enums"]["bid_status"]
+          tutor_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          lobby_id: string
+          status?: Database["public"]["Enums"]["bid_status"]
+          tutor_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          lobby_id?: string
+          status?: Database["public"]["Enums"]["bid_status"]
+          tutor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lobby_bids_lobby_id_fkey"
+            columns: ["lobby_id"]
+            isOneToOne: false
+            referencedRelation: "group_lobbies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lobby_bids_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lobby_members: {
+        Row: {
+          created_at: string
+          id: string
+          lobby_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lobby_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lobby_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lobby_members_lobby_id_fkey"
+            columns: ["lobby_id"]
+            isOneToOne: false
+            referencedRelation: "group_lobbies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lobby_members_student_id_fkey"
+            columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1100,7 +1238,21 @@ export type Database = {
         Returns: Database["public"]["Tables"]["bookings"]["Row"]
       }
       cancel_group_session: { Args: { p_group: string }; Returns: undefined }
+      create_lobby: {
+        Args: {
+          p_budget: number
+          p_deadline: string
+          p_end: string
+          p_max: number
+          p_min: number
+          p_module: string
+          p_start: string
+          p_title: string
+        }
+        Returns: Database["public"]["Tables"]["group_lobbies"]["Row"]
+      }
       enrol_in_group: { Args: { p_group: string }; Returns: number }
+      join_lobby: { Args: { p_lobby: string }; Returns: number }
       is_admin: { Args: never; Returns: boolean }
       is_nus: { Args: never; Returns: boolean }
       mark_messages_read: { Args: { p_other: string }; Returns: undefined }
