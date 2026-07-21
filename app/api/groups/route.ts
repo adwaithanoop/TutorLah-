@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
+    if (error.code === "23503") return NextResponse.json({ error: "Unknown module code" }, { status: 400 });
     const forbidden = error.code === "42501";
     return NextResponse.json({ error: error.message }, { status: forbidden ? 403 : 500 });
   }
